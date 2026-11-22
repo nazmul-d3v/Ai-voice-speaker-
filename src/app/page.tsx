@@ -15,7 +15,7 @@ import {
   Check,
   RotateCcw,
   Sparkles,
-  Sliders,
+  SlidersHorizontal,
   AlertCircle,
   FileText,
   Trash2,
@@ -710,7 +710,7 @@ export default function Home() {
               <div className="space-y-4 rounded-xl border border-slate-800/80 bg-slate-950/50 p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                    <Sliders className="h-3.5 w-3.5 text-emerald-400" />
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-400" />
                     <span>কথা বলার গতি ও পিচ (Voice Controls)</span>
                   </div>
                   <button
