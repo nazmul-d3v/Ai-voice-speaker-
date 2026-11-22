@@ -9,6 +9,7 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 interface AudioPlayerProps {
@@ -16,6 +17,7 @@ interface AudioPlayerProps {
   textSnippet?: string;
   voiceName?: string;
   detectedLang?: string;
+  isMaleVoice?: boolean;
   onDownload?: () => void;
   autoPlay?: boolean;
 }
@@ -25,21 +27,55 @@ export function AudioPlayer({
   textSnippet,
   voiceName,
   detectedLang = 'bn',
+  isMaleVoice = false,
   autoPlay = false,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const biquadFilterRef = useRef<BiquadFilterNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [deepVoiceBoost, setDeepVoiceBoost] = useState(true);
+
+  // Setup Web Audio API bass/depth filter for male resonance
+  const setupAudioGraph = () => {
+    if (!audioRef.current) return;
+    try {
+      if (!audioContextRef.current) {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        audioContextRef.current = new AudioCtx();
+        biquadFilterRef.current = audioContextRef.current.createBiquadFilter();
+        biquadFilterRef.current.type = 'lowshelf';
+        biquadFilterRef.current.frequency.value = 250;
+        biquadFilterRef.current.gain.value = deepVoiceBoost && isMaleVoice ? 8 : 0;
+
+        sourceNodeRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+        sourceNodeRef.current.connect(biquadFilterRef.current);
+        biquadFilterRef.current.connect(audioContextRef.current.destination);
+      }
+    } catch {
+      // Browser may prevent multiple connect calls on same element
+    }
+  };
+
+  useEffect(() => {
+    if (biquadFilterRef.current) {
+      biquadFilterRef.current.gain.value = deepVoiceBoost && isMaleVoice ? 8 : 0;
+    }
+  }, [deepVoiceBoost, isMaleVoice]);
 
   useEffect(() => {
     if (audioRef.current && audioUrl) {
       audioRef.current.src = audioUrl;
       audioRef.current.playbackRate = playbackRate;
       if (autoPlay) {
+        setupAudioGraph();
         audioRef.current
           .play()
           .then(() => setIsPlaying(true))
@@ -52,10 +88,14 @@ export function AudioPlayer({
 
   const togglePlay = () => {
     if (!audioRef.current || !audioUrl) return;
+    setupAudioGraph();
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume();
+      }
       audioRef.current
         .play()
         .then(() => setIsPlaying(true))
@@ -84,11 +124,11 @@ export function AudioPlayer({
   };
 
   const handleReplay = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
+    if (!audioRef.current) return;
+    setupAudioGraph();
+    audioRef.current.currentTime = 0;
+    audioRef.current.play();
+    setIsPlaying(true);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,8 +161,10 @@ export function AudioPlayer({
 
   const handleDownload = () => {
     if (!audioUrl) return;
+    const isWav = audioUrl.includes('.wav') || audioUrl.startsWith('blob:') && audioUrl.includes('wav');
+    const ext = isWav ? 'wav' : 'mp3';
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const filename = `voice-${detectedLang}-${dateStr}-${Date.now().toString().slice(-4)}.mp3`;
+    const filename = `voice-${detectedLang}-${dateStr}-${Date.now().toString().slice(-4)}.${ext}`;
     const link = document.createElement('a');
     link.href = audioUrl;
     link.download = filename;
@@ -152,6 +194,7 @@ export function AudioPlayer({
     <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-slate-900 to-slate-950 p-6 shadow-2xl shadow-emerald-950/20">
       <audio
         ref={audioRef}
+        crossOrigin="anonymous"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={() => setIsPlaying(false)}
@@ -171,13 +214,31 @@ export function AudioPlayer({
           )}
         </div>
 
-        <button
-          onClick={handleDownload}
-          className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-xs font-semibold text-slate-950 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/25 active:scale-[0.98]"
-        >
-          <Download className="h-4 w-4" />
-          <span>MP3 ডাউনলোড করুন</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Deep Voice Boost Toggle for Male voices */}
+          {isMaleVoice && (
+            <button
+              onClick={() => setDeepVoiceBoost(!deepVoiceBoost)}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
+                deepVoiceBoost
+                  ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 font-semibold'
+                  : 'bg-slate-800 text-slate-400 hover:text-white'
+              }`}
+              title="Enhance deep chest voice resonance"
+            >
+              <SlidersHorizontal className="h-3 w-3" />
+              <span>ডিপ ভয়েস বেস {deepVoiceBoost ? 'অন' : 'অফ'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-xs font-semibold text-slate-950 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/25 active:scale-[0.98]"
+          >
+            <Download className="h-4 w-4" />
+            <span>অডিও ডাউনলোড করুন</span>
+          </button>
+        </div>
       </div>
 
       {textSnippet && (

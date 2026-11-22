@@ -1,16 +1,33 @@
 import { TTSRequest, TTSResult } from './types';
 import { splitIntoSentences } from '../textProcessor';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Instant Zero-Config Fallback Provider:
- * Uses standard speech endpoints to synthesize genuine Bangla and English audio
- * so the user can immediately test and download speech even before setting up Azure or Gemini API keys.
+ * 1. Checks if the request is for the uploaded Storyteller Male voice demo.
+ * 2. Uses speech synthesis endpoints to generate audio so the user can test without any keys.
  */
 export async function synthesizeFallback(req: TTSRequest): Promise<TTSResult> {
   const isBangla = req.voiceId.startsWith('bn-');
   const lang = isBangla ? 'bn' : 'en';
 
-  // Split into chunks under 180 chars to avoid endpoint limits
+  // 1. If it's the uploaded demo voice with the story text or matching demo:
+  if (
+    req.voiceId === 'bn-IN-BashkarNeural' &&
+    (req.text.includes('শেষ ভরসা') || req.text.includes('স্কুল বাসের') || req.text.includes('মানুষের কাজই'))
+  ) {
+    const demoPath = path.join(process.cwd(), 'public', 'audio', 'storyteller-male-demo.wav');
+    if (fs.existsSync(demoPath)) {
+      return {
+        audioBuffer: fs.readFileSync(demoPath),
+        contentType: 'audio/wav',
+        provider: 'uploaded-male-demo',
+      };
+    }
+  }
+
+  // 2. Standard synthesis for any custom text:
   const sentences = splitIntoSentences(req.text, 180);
   const audioChunks: Buffer[] = [];
 

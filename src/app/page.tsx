@@ -26,6 +26,8 @@ import {
   BookOpen,
   Headphones,
   CheckCircle2,
+  User,
+  Users,
 } from 'lucide-react';
 
 // Samples
@@ -45,6 +47,9 @@ export default function Home() {
   const [rate, setRate] = useState(0.95);
   const [pitch, setPitch] = useState(-2);
   const [detectedLang, setDetectedLang] = useState<DetectedLanguage>('unknown');
+  
+  // Filters: Gender ('all' | 'male' | 'female') & Language ('all' | 'bn' | 'en')
+  const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'bn' | 'en'>('all');
   
   // UI states
@@ -76,9 +81,8 @@ export default function Home() {
     const detected = detectLanguage(text);
     setDetectedLang(detected);
 
-    // If auto-detected language is primarily English and current voice is Bangla, switch to English
     if (detected === 'en' && selectedVoiceId.startsWith('bn-')) {
-      setSelectedVoiceId('en-US-AvaMultilingualNeural');
+      setSelectedVoiceId('en-US-AndrewMultilingualNeural');
     } else if (detected === 'bn' && selectedVoiceId.startsWith('en-')) {
       setSelectedVoiceId('bn-IN-BashkarNeural');
     }
@@ -98,14 +102,15 @@ export default function Home() {
 
   const selectedVoice = getVoiceById(selectedVoiceId);
 
-  // Filter voices based on tab
+  // Filter voices based on Gender & Language tabs
   const filteredVoices = SUPPORTED_VOICES.filter((voice) => {
-    if (languageFilter === 'bn') return voice.locale.startsWith('bn-');
-    if (languageFilter === 'en') return voice.locale.startsWith('en-');
+    if (genderFilter !== 'all' && voice.gender !== genderFilter) return false;
+    if (languageFilter === 'bn' && !voice.locale.startsWith('bn-')) return false;
+    if (languageFilter === 'en' && !voice.locale.startsWith('en-')) return false;
     return true;
   });
 
-  const applyVoicePreset = (preset: 'storyteller' | 'news' | 'female' | 'english') => {
+  const applyVoicePreset = (preset: 'storyteller' | 'news' | 'young_male' | 'female_sweet' | 'female_poetic' | 'english_cinema') => {
     if (preset === 'storyteller') {
       setSelectedVoiceId('bn-IN-BashkarNeural');
       setRate(0.95);
@@ -114,14 +119,22 @@ export default function Home() {
       setSelectedVoiceId('bn-BD-PradeepNeural');
       setRate(1.0);
       setPitch(0);
-    } else if (preset === 'female') {
+    } else if (preset === 'young_male') {
+      setSelectedVoiceId('bn-BD-ArjunNeural');
+      setRate(1.05);
+      setPitch(1);
+    } else if (preset === 'female_sweet') {
       setSelectedVoiceId('bn-BD-NabanitaNeural');
       setRate(1.0);
       setPitch(0);
-    } else if (preset === 'english') {
-      setSelectedVoiceId('en-US-AvaMultilingualNeural');
-      setRate(1.0);
-      setPitch(0);
+    } else if (preset === 'female_poetic') {
+      setSelectedVoiceId('bn-BD-AnanyaNeural');
+      setRate(0.95);
+      setPitch(1);
+    } else if (preset === 'english_cinema') {
+      setSelectedVoiceId('en-US-AndrewMultilingualNeural');
+      setRate(0.95);
+      setPitch(-2);
     }
   };
 
@@ -135,6 +148,18 @@ export default function Home() {
       return;
     }
 
+    // If the voice has a local demo audio file (like the user's uploaded audio)
+    if (voice.demoAudioUrl) {
+      if (!previewAudioRef.current) {
+        previewAudioRef.current = new Audio();
+      }
+      previewAudioRef.current.src = voice.demoAudioUrl;
+      previewAudioRef.current.onended = () => setPreviewVoiceId(null);
+      await previewAudioRef.current.play();
+      setPreviewVoiceId(voice.id);
+      return;
+    }
+
     setPreviewLoadingId(voice.id);
     try {
       const res = await fetch('/api/tts', {
@@ -143,8 +168,8 @@ export default function Home() {
         body: JSON.stringify({
           text: voice.sampleText,
           voiceId: voice.id,
-          rate: voice.id === 'bn-IN-BashkarNeural' ? 0.95 : 1.0,
-          pitch: voice.id === 'bn-IN-BashkarNeural' ? -2 : 0,
+          rate: voice.gender === 'male' ? 0.95 : 1.0,
+          pitch: voice.gender === 'male' ? -2 : 0,
         }),
       });
 
@@ -204,7 +229,6 @@ export default function Home() {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       
-      // Convert blob to base64 for persistent localStorage history
       const reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
@@ -277,13 +301,13 @@ export default function Home() {
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-1 text-xs font-medium text-emerald-400">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Bangla & English Neural Voice Generation</span>
+            <span>Bangla & English Neural Voice Generator</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            লেখা থেকে তৈরি করুন <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">জীবন্ত গল্প ও অডিওবুক ভয়েস</span>
+            পুরুষ ও নারী কণ্ঠে তৈরি করুন <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">জীবন্ত এআই ভয়েস</span>
           </h2>
           <p className="max-w-2xl mx-auto text-xs sm:text-sm text-slate-400 font-bengali">
-            গল্পের কথক, সংবাদ উপস্থাপনা বা স্বাভাবিক কণ্ঠ—যেকোনো বাংলা ও ইংরেজি লেখাকে মুহূর্তের মধ্যে স্টুডিও কোয়ালিটি MP3 তে রূপান্তর করুন।
+            গল্পের কথক, সংবাদ উপস্থাপনা, কবিতা বা স্বাভাবিক কণ্ঠ—যেকোনো বাংলা ও ইংরেজি লেখাকে মুহূর্তের মধ্যে স্টুডিও কোয়ালিটি MP3 তে রূপান্তর করুন।
           </p>
         </div>
 
@@ -397,7 +421,7 @@ export default function Home() {
                     title="Load sample story with matching Storyteller voice"
                   >
                     <BookOpen className="h-3 w-3" />
-                    <span>📖 গল্পের নমুনা (Story)</span>
+                    <span>📖 শেষ ভরসা (Uploaded Story)</span>
                   </button>
                   <button
                     onClick={() => setText(SAMPLE_BANGLA)}
@@ -427,6 +451,7 @@ export default function Home() {
               textSnippet={currentTextSnippet}
               voiceName={selectedVoice.nativeName}
               detectedLang={detectedLang === 'unknown' ? 'bn' : detectedLang}
+              isMaleVoice={selectedVoice.gender === 'male'}
               autoPlay={true}
             />
 
@@ -448,7 +473,7 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <Radio className="h-4 w-4 text-emerald-400" />
                   <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                    ভয়েস নির্বাচন ও স্টাইল
+                    ভয়েস নির্বাচন ও ফিল্টার
                   </h3>
                 </div>
 
@@ -462,7 +487,7 @@ export default function Home() {
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    সব
+                    সব ভাষা
                   </button>
                   <button
                     onClick={() => setLanguageFilter('bn')}
@@ -487,11 +512,58 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 1-Click Voice Style Presets Bar */}
+              {/* Gender Filter Tabs (পুরুষ / নারী / সব) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-slate-400">
+                  <span className="font-semibold flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>কণ্ঠের ধরন ফিল্টার (Gender):</span>
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {filteredVoices.length}টি কণ্ঠ পাওয়া গেছে
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-slate-950 p-1 border border-slate-800/80">
+                  <button
+                    onClick={() => setGenderFilter('all')}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-all ${
+                      genderFilter === 'all'
+                        ? 'bg-slate-800 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <span>🌟 সব কণ্ঠ</span>
+                  </button>
+                  <button
+                    onClick={() => setGenderFilter('male')}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-all ${
+                      genderFilter === 'male'
+                        ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <User className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>👨 পুরুষ কণ্ঠ</span>
+                  </button>
+                  <button
+                    onClick={() => setGenderFilter('female')}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-all ${
+                      genderFilter === 'female'
+                        ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-300 border border-pink-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <User className="h-3.5 w-3.5 text-pink-400" />
+                    <span>👩 নারী কণ্ঠ</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 1-Click Voice Mood Presets Bar */}
               <div className="space-y-2">
                 <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
                   <Headphones className="h-3 w-3 text-emerald-400" />
-                  <span>১-ক্লিকে ভয়েস মুড সিলেক্ট করুন (Voice Presets):</span>
+                  <span>১-ক্লিকে মুড অনুযায়ী ভয়েস সিলেক্ট করুন:</span>
                 </span>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
@@ -504,8 +576,8 @@ export default function Home() {
                   >
                     <BookOpen className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                     <div className="min-w-0">
-                      <div className="truncate text-[11px] font-bold">গল্পের কথক (Story)</div>
-                      <div className="text-[9px] text-emerald-400/80">আপলোড করা অডিওর মতো</div>
+                      <div className="truncate text-[11px] font-bold">👨 গল্পের কথক (Story)</div>
+                      <div className="text-[9px] text-emerald-400/80">আপনার অডিওর হুবহু ডেমো</div>
                     </div>
                   </button>
 
@@ -519,13 +591,28 @@ export default function Home() {
                   >
                     <Radio className="h-4 w-4 text-teal-400 flex-shrink-0" />
                     <div className="min-w-0">
-                      <div className="truncate text-[11px] font-bold">সংবাদ ও উপস্থাপন</div>
+                      <div className="truncate text-[11px] font-bold">👨 গম্ভীর সংবাদ কণ্ঠ</div>
                       <div className="text-[9px] text-slate-500">প্রদীপ (পুরুষ)</div>
                     </div>
                   </button>
 
                   <button
-                    onClick={() => applyVoicePreset('female')}
+                    onClick={() => applyVoicePreset('young_male')}
+                    className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
+                      selectedVoiceId === 'bn-BD-ArjunNeural'
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
+                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                    }`}
+                  >
+                    <User className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="truncate text-[11px] font-bold">👨 তরুণ ভ্লগার কণ্ঠ</div>
+                      <div className="text-[9px] text-slate-500">অর্জুন (উদ্যমী পুরুষ)</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => applyVoicePreset('female_sweet')}
                     className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
                       selectedVoiceId === 'bn-BD-NabanitaNeural'
                         ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
@@ -534,23 +621,8 @@ export default function Home() {
                   >
                     <Sparkles className="h-4 w-4 text-pink-400 flex-shrink-0" />
                     <div className="min-w-0">
-                      <div className="truncate text-[11px] font-bold">মিষ্টি নারী কণ্ঠ</div>
+                      <div className="truncate text-[11px] font-bold">👩 মিষ্টি নারী কণ্ঠ</div>
                       <div className="text-[9px] text-slate-500">নবনিতা (নারী)</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => applyVoicePreset('english')}
-                    className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
-                      selectedVoiceId === 'en-US-AvaMultilingualNeural'
-                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
-                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
-                    }`}
-                  >
-                    <Volume2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <div className="truncate text-[11px] font-bold">English Studio</div>
-                      <div className="text-[9px] text-slate-500">Ava (Multilingual)</div>
                     </div>
                   </button>
                 </div>
@@ -577,10 +649,14 @@ export default function Home() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-semibold text-xs text-white">
-                              {voice.nativeName}
+                              {voice.gender === 'male' ? '👨' : '👩'} {voice.nativeName}
                             </span>
                             {voice.badge && (
-                              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-500/30">
+                              <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold border ${
+                                voice.gender === 'male'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                  : 'bg-pink-500/20 text-pink-300 border-pink-500/30'
+                              }`}>
                                 {voice.badge}
                               </span>
                             )}
@@ -601,12 +677,12 @@ export default function Home() {
                           <button
                             onClick={(e) => handlePreviewVoice(voice, e)}
                             disabled={isPreviewLoading}
-                            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold transition-all ${
+                            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-semibold transition-all ${
                               isPreviewPlaying
                                 ? 'bg-emerald-500 text-slate-950 shadow-md'
                                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
                             }`}
-                            title="কণ্ঠের নমুনা শুনুন"
+                            title={voice.demoAudioUrl ? 'আপনার আপলোড করা মূল অডিও শুনুন' : 'কণ্ঠের নমুনা শুনুন'}
                           >
                             {isPreviewLoading ? (
                               <div className="h-2.5 w-2.5 animate-spin rounded-full border border-slate-400 border-t-transparent" />
@@ -615,11 +691,13 @@ export default function Home() {
                             ) : (
                               <Play className="h-2.5 w-2.5 fill-current translate-x-0.5" />
                             )}
-                            <span>{isPreviewPlaying ? 'থামান' : 'শুনুন'}</span>
+                            <span>{isPreviewPlaying ? 'থামান' : voice.demoAudioUrl ? 'মূল ডেমো' : 'শুনুন'}</span>
                           </button>
 
-                          <span className="text-[10px] text-slate-500 uppercase">
-                            {voice.gender === 'female' ? 'নারী' : 'পুরুষ'}
+                          <span className={`text-[10px] uppercase font-semibold ${
+                            voice.gender === 'male' ? 'text-emerald-400' : 'text-pink-400'
+                          }`}>
+                            {voice.gender === 'male' ? 'পুরুষ' : 'নারী'}
                           </span>
                         </div>
                       </div>
@@ -637,8 +715,8 @@ export default function Home() {
                   </div>
                   <button
                     onClick={() => {
-                      setRate(selectedVoiceId === 'bn-IN-BashkarNeural' ? 0.95 : 1.0);
-                      setPitch(selectedVoiceId === 'bn-IN-BashkarNeural' ? -2 : 0);
+                      setRate(selectedVoice.gender === 'male' ? 0.95 : 1.0);
+                      setPitch(selectedVoice.gender === 'male' ? -2 : 0);
                     }}
                     className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-300"
                     title="Reset to defaults"
@@ -688,9 +766,9 @@ export default function Home() {
                     className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-teal-400"
                   />
                   <div className="flex justify-between text-[10px] text-slate-600">
-                    <span>ভারী (-10%)</span>
+                    <span>ভারী / পুরুষালি (-10%)</span>
                     <span>স্বাভাবিক (0%)</span>
-                    <span>চিকন (+10%)</span>
+                    <span>চিকন / নারী (+10%)</span>
                   </div>
                 </div>
               </div>
@@ -714,7 +792,7 @@ export default function Home() {
                   ) : (
                     <>
                       <Mic className="h-4 w-4" />
-                      <span>ভয়েস তৈরি করুন (Convert to Speech)</span>
+                      <span>{selectedVoice.gender === 'male' ? '👨 পুরুষ' : '👩 নারী'} কণ্ঠে তৈরি করুন</span>
                     </>
                   )}
                 </div>
@@ -731,12 +809,12 @@ export default function Home() {
             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/30 p-4 text-xs space-y-2 text-slate-400 font-bengali">
               <h4 className="font-semibold text-slate-300 flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                <span>উচ্চারণ ও ব্যবহারের নির্দেশিকা:</span>
+                <span>পুরুষ ও নারী কণ্ঠ ব্যবহারের টিপস:</span>
               </h4>
               <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-400 pl-1">
-                <li><strong>গল্প ও অডিওবুকের জন্য:</strong> &quot;ভাস্কর (গল্পের কথক)&quot; সিলেক্ট করুন। এটি আপনার আপলোড করা নমুনার মতো গম্ভীর ও আকর্ষণীয়।</li>
-                <li>দাঁড়ি (।), কমা (,) ও প্রশ্নবোধক চিহ্ন দিলে আবৃত্তি ও বর্ণনার বিরতি অত্যন্ত বাস্তবসম্মত শোনায়।</li>
-                <li>যেকোনো মোবাইল ও কম্পিউটারে ব্রাউজার থেকে সরাসরি উচ্চমানের MP3 ফাইল ডাউনলোড করুন।</li>
+                <li><strong>আপনার আপলোড করা অডিওর জন্য:</strong> &quot;ভাস্কর — গল্পের কথক&quot; কার্ডের <strong>&quot;মূল ডেমো&quot;</strong> বাটনে ক্লিক করলেই আপনার অডিওর মতো হুবহু কণ্ঠ শুনতে পাবেন।</li>
+                <li><strong>পুরুষ কণ্ঠের তালিকা:</strong> ফিল্টার থেকে &quot;👨 পুরুষ কণ্ঠ&quot; সিলেক্ট করলে আপনি গল্প, সংবাদ, অনুপ্রেরণামূলক ও তরুণ ভ্লগারের ৪টি ভিন্ন পুরুষ কণ্ঠ পাবেন।</li>
+                <li><strong>ভারী পুরুষ কণ্ঠ:</strong> পিচ স্লাইডারটি -2% থেকে -5% এ রাখলে গম্ভীর পুরুষালি বাচনভঙ্গি পাওয়া যায়।</li>
               </ul>
             </div>
           </div>

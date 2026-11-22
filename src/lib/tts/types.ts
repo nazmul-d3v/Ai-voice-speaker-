@@ -13,7 +13,8 @@ export interface VoiceOption {
   isRecommended?: boolean;
   sampleText: string;
   badge?: string;
-  category?: 'storyteller' | 'general' | 'news';
+  category?: 'storyteller' | 'general' | 'news' | 'calm' | 'energetic';
+  demoAudioUrl?: string;
 }
 
 export interface TTSRequest {
