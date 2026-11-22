@@ -11,6 +11,15 @@
 **বাংলা ও ইংরেজি বাস্তবসম্মত মানুষের মতো স্টুডিও কোয়ালিটি টেক্সট-টু-স্পিচ (TTS) প্ল্যাটফর্ম**  
 *Inspired by Cartesia Sonic 3.5 Playground & Neural Speech Synthesis*
 
+<br />
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnazmul-d3v%2FAi-voice-speaker-)
+
+🚀 **১-ক্লিকে Vercel-এ ডেপ্লয় করুন:** [https://vercel.com/new/clone?repository-url=https://github.com/nazmul-d3v/Ai-voice-speaker-](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnazmul-d3v%2FAi-voice-speaker-)  
+🌐 **GitHub রিপোজিটরি:** [https://github.com/nazmul-d3v/Ai-voice-speaker-](https://github.com/nazmul-d3v/Ai-voice-speaker-)
+
+<br />
+
 [লাইভ ডেমো ও ফিচারসমূহ](#-মূল-বৈশিষ্ট্যসমূহ) • [লোকাল সেটআপ](#-লোকাল-সেটআপ-গাইড) • [গিটহাব ও ভার্সেল ডেপ্লয়](#-গিটহাব--ভার্সেল-ডেপ্লয়-গাইড) • [এপিআই ডকুমেন্টেশন](#-api-ব্যবহারের-নিয়ম)
 
 </div>
@@ -112,24 +121,20 @@ npm start
 
 ## 🌐 গিটহাব ও ভার্সেল ডেপ্লয় গাইড (GitHub & Vercel Deployment)
 
-এই ওয়েবসাইটটি সরাসরি গিটহাব এবং ভার্সেলে ডেপ্লয় করার জন্য ১০০% প্রস্তুত।
+এই ওয়েবসাইটটি সরাসরি গিটহাব এবং ভার্সেলে ডেপ্লয় করার জন্য সম্পূর্ণ প্রস্তুত।
 
-### ধাপ ১: GitHub-এ কোড পুশ করুন
-```bash
-git add .
-git commit -m "feat: launch ultra-realistic Ai-Spicker Sonic TTS"
-git branch -M main
-git remote add origin https://github.com/<your-username>/Ai-Spicker.git
-git push -u origin main
-```
+### ১-ক্লিকে সরাসরি Vercel-এ ডেপ্লয় করুন:
+নিচের বাটনে ক্লিক করলেই আপনার Vercel অ্যাকাউন্টে প্রজেক্টটি নিজে থেকেই ইমপোর্ট হয়ে ডেপ্লয় শুরু হবে:
 
-### ধাপ ২: Vercel-এ ১-ক্লিকে ডেপ্লয় করুন
-1. [Vercel](https://vercel.com)-এ যান এবং GitHub অ্যাকাউন্ট দিয়ে সাইন-ইন করুন।
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnazmul-d3v%2FAi-voice-speaker-)
+
+👉 **সরাসরি ডেপ্লয়মেন্ট লিংক:** [https://vercel.com/new/clone?repository-url=https://github.com/nazmul-d3v/Ai-voice-speaker-](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnazmul-d3v%2FAi-voice-speaker-)
+
+### ম্যানুয়াল ডেপ্লয় পদ্ধতি:
+1. [Vercel](https://vercel.com)-এ যান এবং আপনার GitHub অ্যাকাউন্ট (`nazmul-d3v`) দিয়ে লগইন করুন।
 2. **"Add New..."** বাটনে ক্লিক করে **"Project"** সিলেক্ট করুন।
-3. আপনার `Ai-Spicker` রিপোজিটরিটি সিলেক্ট করে **"Import"**-এ ক্লিক করুন।
-4. **Build and Output Settings** স্বয়ংক্রিয়ভাবে `Next.js` শনাক্ত করবে।
-5. **"Deploy"** বাটনে ক্লিক করুন।  
-   ১-২ মিনিটের মধ্যে আপনার ওয়েবসাইট বিশ্বব্যাপী দ্রুতগতির ফ্রি ডোমেইনে লাইভ হয়ে যাবে! 🎉
+3. আপনার **`Ai-voice-speaker-`** রিপোজিটরিটি সিলেক্ট করে **"Import"**-এ ক্লিক করুন।
+4. **"Deploy"** বাটনে ক্লিক করুন। ১-২ মিনিটের মধ্যেই আপনার ওয়েবসাইট বিশ্বব্যাপী ফ্রি `.vercel.app` ডোমেইনে লাইভ হয়ে যাবে! 🎉
 
 ---
 

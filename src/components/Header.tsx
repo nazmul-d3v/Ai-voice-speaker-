@@ -44,7 +44,16 @@ export function Header() {
           </div>
 
           <a
-            href="https://github.com"
+            href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnazmul-d3v%2FAi-voice-speaker-"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1.5 rounded-xl border border-cyan-500/30 bg-cyan-950/40 px-3 py-1.5 text-xs font-semibold text-cyan-300 transition-all hover:bg-cyan-900/50 hover:text-white"
+          >
+            <span>▲ Deploy Vercel</span>
+          </a>
+
+          <a
+            href="https://github.com/nazmul-d3v/Ai-voice-speaker-"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-slate-700 hover:text-white"
