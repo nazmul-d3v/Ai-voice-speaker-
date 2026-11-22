@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["microsoft-cognitiveservices-speech-sdk"],
+  serverExternalPackages: [
+    "microsoft-cognitiveservices-speech-sdk",
+    "@andresaya/edge-tts",
+    "ws",
+    "node-edge-tts"
+  ],
   typescript: {
     ignoreBuildErrors: true,
   },
