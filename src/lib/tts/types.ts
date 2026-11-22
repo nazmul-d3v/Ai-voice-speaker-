@@ -12,6 +12,8 @@ export interface VoiceOption {
   description: string;
   isRecommended?: boolean;
   sampleText: string;
+  badge?: string;
+  category?: 'storyteller' | 'general' | 'news';
 }
 
 export interface TTSRequest {

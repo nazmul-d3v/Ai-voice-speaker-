@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Header } from '../components/Header';
 import { AudioPlayer } from '../components/AudioPlayer';
 import { HistoryList } from '../components/HistoryList';
 import { SUPPORTED_VOICES, DEFAULT_VOICE_ID, getVoiceById } from '../lib/tts/voices';
 import { detectLanguage, DetectedLanguage } from '../lib/textProcessor';
 import { loadHistory, saveHistoryItem, deleteHistoryItem, clearAllHistory, HistoryItem } from '../lib/storage';
+import { VoiceOption } from '../lib/tts/types';
 import {
   Volume2,
   Mic,
@@ -20,7 +21,15 @@ import {
   Trash2,
   ClipboardPaste,
   Radio,
+  Play,
+  Pause,
+  BookOpen,
+  Headphones,
+  CheckCircle2,
 } from 'lucide-react';
+
+// Samples
+const SAMPLE_STORY = `শেষ ভরসা। সেদিন একটা স্কুল বাসের ব্রেক কাজ করা বন্ধ করে দিয়েছিল। বাসের ভেতরে তখন ১৫টি শিশু। বাইরে প্রচণ্ড বৃষ্টি, কেউ এগিয়ে আসার সাহস পাচ্ছিল না। ঠিক তখনই এগিয়ে এলো আশা। পেশায় সে একজন তরুণী মেকানিক। কিন্তু বাসচালক তাকে দেখে বলল, তুমি পারবে তো? এত বড় বাস ঠিক করা কি তোমার কাজ? আশা কোনো উত্তর দিল না। সে দ্রুত বাসের নিচে গিয়ে পরীক্ষা শুরু করল। মানুষের কাছে নিজের পরিচয় মুখে বলতে হয় না, নিজের কাজই একদিন পরিচয় তৈরি করে দেয়।`;
 
 const SAMPLE_BANGLA = `আজকের দিনে কৃত্রিম বুদ্ধিমত্তা আমাদের ভাষাকে নতুন মাত্রা দিয়েছে। আপনি চাইলে সহজেই যেকোনো বাংলা লেখা থেকে স্টুডিও মানের স্পষ্ট ও প্রাকৃতিক ভয়েস তৈরি করতে পারেন। ২০২৬ সালের এই নতুন প্রযুক্তি আপনার কনটেন্টকে আরও আকর্ষণীয় করবে।`;
 
@@ -33,13 +42,12 @@ const MAX_CHARS = 3000;
 export default function Home() {
   const [text, setText] = useState('');
   const [selectedVoiceId, setSelectedVoiceId] = useState(DEFAULT_VOICE_ID);
-  const [rate, setRate] = useState(1.0);
-  const [pitch, setPitch] = useState(0);
+  const [rate, setRate] = useState(0.95);
+  const [pitch, setPitch] = useState(-2);
   const [detectedLang, setDetectedLang] = useState<DetectedLanguage>('unknown');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'bn' | 'en'>('all');
   
   // UI states
-  const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -48,6 +56,11 @@ export default function Home() {
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(null);
   const [currentTextSnippet, setCurrentTextSnippet] = useState<string>('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  // Voice Preview state
+  const [previewVoiceId, setPreviewVoiceId] = useState<string | null>(null);
+  const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -63,11 +76,11 @@ export default function Home() {
     const detected = detectLanguage(text);
     setDetectedLang(detected);
 
-    // If auto-detected language is primarily English, suggest English voice if currently on Bangla
+    // If auto-detected language is primarily English and current voice is Bangla, switch to English
     if (detected === 'en' && selectedVoiceId.startsWith('bn-')) {
       setSelectedVoiceId('en-US-AvaMultilingualNeural');
     } else if (detected === 'bn' && selectedVoiceId.startsWith('en-')) {
-      setSelectedVoiceId('bn-BD-NabanitaNeural');
+      setSelectedVoiceId('bn-IN-BashkarNeural');
     }
   }, [text]);
 
@@ -91,6 +104,70 @@ export default function Home() {
     if (languageFilter === 'en') return voice.locale.startsWith('en-');
     return true;
   });
+
+  const applyVoicePreset = (preset: 'storyteller' | 'news' | 'female' | 'english') => {
+    if (preset === 'storyteller') {
+      setSelectedVoiceId('bn-IN-BashkarNeural');
+      setRate(0.95);
+      setPitch(-2);
+    } else if (preset === 'news') {
+      setSelectedVoiceId('bn-BD-PradeepNeural');
+      setRate(1.0);
+      setPitch(0);
+    } else if (preset === 'female') {
+      setSelectedVoiceId('bn-BD-NabanitaNeural');
+      setRate(1.0);
+      setPitch(0);
+    } else if (preset === 'english') {
+      setSelectedVoiceId('en-US-AvaMultilingualNeural');
+      setRate(1.0);
+      setPitch(0);
+    }
+  };
+
+  const handlePreviewVoice = async (voice: VoiceOption, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // If already playing this voice, stop it
+    if (previewVoiceId === voice.id && previewAudioRef.current && !previewAudioRef.current.paused) {
+      previewAudioRef.current.pause();
+      setPreviewVoiceId(null);
+      return;
+    }
+
+    setPreviewLoadingId(voice.id);
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: voice.sampleText,
+          voiceId: voice.id,
+          rate: voice.id === 'bn-IN-BashkarNeural' ? 0.95 : 1.0,
+          pitch: voice.id === 'bn-IN-BashkarNeural' ? -2 : 0,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Preview failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      if (!previewAudioRef.current) {
+        previewAudioRef.current = new Audio();
+      }
+
+      previewAudioRef.current.src = url;
+      previewAudioRef.current.onended = () => {
+        setPreviewVoiceId(null);
+      };
+      await previewAudioRef.current.play();
+      setPreviewVoiceId(voice.id);
+    } catch (err) {
+      console.warn('Voice preview error:', err);
+    } finally {
+      setPreviewLoadingId(null);
+    }
+  };
 
   const handleGenerateSpeech = async () => {
     const trimmed = text.trim();
@@ -203,10 +280,10 @@ export default function Home() {
             <span>Bangla & English Neural Voice Generation</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            লেখা থেকে তৈরি করুন <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">জীবন্ত ভয়েস</span>
+            লেখা থেকে তৈরি করুন <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">জীবন্ত গল্প ও অডিওবুক ভয়েস</span>
           </h2>
           <p className="max-w-2xl mx-auto text-xs sm:text-sm text-slate-400 font-bengali">
-            বাংলা দাঁড়ি (।), যুক্তাক্ষর এবং ইংরেজি সংমিশ্রিত বাক্য নিখুঁত উচ্চারণে শুনুন এবং এক ক্লিকে MP3 ডাউনলোড করুন।
+            গল্পের কথক, সংবাদ উপস্থাপনা বা স্বাভাবিক কণ্ঠ—যেকোনো বাংলা ও ইংরেজি লেখাকে মুহূর্তের মধ্যে স্টুডিও কোয়ালিটি MP3 তে রূপান্তর করুন।
           </p>
         </div>
 
@@ -292,7 +369,7 @@ export default function Home() {
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="এখানে আপনার বাংলা, English বা মিশ্রিত বাক্য লিখুন বা পেস্ট করুন... (যেমন: আজকের weather খুব সুন্দর, চলো Next.js দিয়ে নতুন AI project শুরু করি!)"
+                  placeholder="এখানে আপনার গল্প, প্রবন্ধ, ভিডিও স্ক্রিপ্ট বা যেকোনো বাংলা ও ইংরেজি টেক্সট লিখুন বা পেস্ট করুন... (যেমন: সেদিন একটা স্কুল বাসের ব্রেক কাজ করা বন্ধ করে দিয়েছিল...)"
                   rows={8}
                   className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950/80 p-4 text-sm text-slate-100 placeholder:text-slate-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 font-bengali leading-relaxed"
                 />
@@ -310,7 +387,18 @@ export default function Home() {
 
                 {/* Sample buttons */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] text-slate-500">নমুনা টেক্সট:</span>
+                  <span className="text-[11px] text-slate-500">নমুনা:</span>
+                  <button
+                    onClick={() => {
+                      setText(SAMPLE_STORY);
+                      applyVoicePreset('storyteller');
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/30 transition-colors"
+                    title="Load sample story with matching Storyteller voice"
+                  >
+                    <BookOpen className="h-3 w-3" />
+                    <span>📖 গল্পের নমুনা (Story)</span>
+                  </button>
                   <button
                     onClick={() => setText(SAMPLE_BANGLA)}
                     className="rounded-lg bg-slate-800/80 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 hover:text-emerald-400 transition-colors"
@@ -327,7 +415,7 @@ export default function Home() {
                     onClick={() => setText(SAMPLE_MIXED)}
                     className="rounded-lg bg-slate-800/80 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 hover:text-amber-400 transition-colors"
                   >
-                    বাংলিশ (Mixed)
+                    বাংলিশ
                   </button>
                 </div>
               </div>
@@ -360,7 +448,7 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <Radio className="h-4 w-4 text-emerald-400" />
                   <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                    ভয়েস ও উচ্চারণ সেটিংস
+                    ভয়েস নির্বাচন ও স্টাইল
                   </h3>
                 </div>
 
@@ -399,41 +487,137 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Voice Cards */}
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {/* 1-Click Voice Style Presets Bar */}
+              <div className="space-y-2">
+                <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
+                  <Headphones className="h-3 w-3 text-emerald-400" />
+                  <span>১-ক্লিকে ভয়েস মুড সিলেক্ট করুন (Voice Presets):</span>
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <button
+                    onClick={() => applyVoicePreset('storyteller')}
+                    className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
+                      selectedVoiceId === 'bn-IN-BashkarNeural'
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
+                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                    }`}
+                  >
+                    <BookOpen className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="truncate text-[11px] font-bold">গল্পের কথক (Story)</div>
+                      <div className="text-[9px] text-emerald-400/80">আপলোড করা অডিওর মতো</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => applyVoicePreset('news')}
+                    className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
+                      selectedVoiceId === 'bn-BD-PradeepNeural'
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
+                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                    }`}
+                  >
+                    <Radio className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="truncate text-[11px] font-bold">সংবাদ ও উপস্থাপন</div>
+                      <div className="text-[9px] text-slate-500">প্রদীপ (পুরুষ)</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => applyVoicePreset('female')}
+                    className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
+                      selectedVoiceId === 'bn-BD-NabanitaNeural'
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
+                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                    }`}
+                  >
+                    <Sparkles className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="truncate text-[11px] font-bold">মিষ্টি নারী কণ্ঠ</div>
+                      <div className="text-[9px] text-slate-500">নবনিতা (নারী)</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => applyVoicePreset('english')}
+                    className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-all ${
+                      selectedVoiceId === 'en-US-AvaMultilingualNeural'
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold shadow-md shadow-emerald-500/20 ring-1 ring-emerald-500'
+                        : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                    }`}
+                  >
+                    <Volume2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="truncate text-[11px] font-bold">English Studio</div>
+                      <div className="text-[9px] text-slate-500">Ava (Multilingual)</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Voice Cards List */}
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                 {filteredVoices.map((voice) => {
                   const isSelected = voice.id === selectedVoiceId;
+                  const isPreviewPlaying = previewVoiceId === voice.id;
+                  const isPreviewLoading = previewLoadingId === voice.id;
+
                   return (
                     <div
                       key={voice.id}
                       onClick={() => setSelectedVoiceId(voice.id)}
                       className={`group relative rounded-xl border p-3.5 transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-emerald-500 bg-emerald-500/10 shadow-md shadow-emerald-500/10'
+                          ? 'border-emerald-500 bg-emerald-500/10 shadow-md shadow-emerald-500/10 ring-1 ring-emerald-500/40'
                           : 'border-slate-800/80 bg-slate-950/60 hover:border-slate-700 hover:bg-slate-900/80'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-semibold text-xs text-white">
                               {voice.nativeName}
                             </span>
-                            {voice.isRecommended && (
-                              <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.2 text-[9px] font-bold text-emerald-300 border border-emerald-500/30">
-                                সেরা পছন্দ
+                            {voice.badge && (
+                              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-500/30">
+                                {voice.badge}
+                              </span>
+                            )}
+                            {isSelected && (
+                              <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-semibold">
+                                <CheckCircle2 className="h-3 w-3" />
+                                <span>সিলেক্টেড</span>
                               </span>
                             )}
                           </div>
-                          <p className="mt-1 text-[11px] text-slate-400 font-bengali">
+                          <p className="mt-1 text-[11px] text-slate-400 font-bengali leading-relaxed">
                             {voice.description}
                           </p>
                         </div>
 
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300">
-                            {voice.languageLabel}
-                          </span>
+                        {/* Voice Actions: Preview audio button & Gender Tag */}
+                        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                          <button
+                            onClick={(e) => handlePreviewVoice(voice, e)}
+                            disabled={isPreviewLoading}
+                            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold transition-all ${
+                              isPreviewPlaying
+                                ? 'bg-emerald-500 text-slate-950 shadow-md'
+                                : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                            }`}
+                            title="কণ্ঠের নমুনা শুনুন"
+                          >
+                            {isPreviewLoading ? (
+                              <div className="h-2.5 w-2.5 animate-spin rounded-full border border-slate-400 border-t-transparent" />
+                            ) : isPreviewPlaying ? (
+                              <Pause className="h-2.5 w-2.5 fill-current" />
+                            ) : (
+                              <Play className="h-2.5 w-2.5 fill-current translate-x-0.5" />
+                            )}
+                            <span>{isPreviewPlaying ? 'থামান' : 'শুনুন'}</span>
+                          </button>
+
                           <span className="text-[10px] text-slate-500 uppercase">
                             {voice.gender === 'female' ? 'নারী' : 'পুরুষ'}
                           </span>
@@ -453,8 +637,8 @@ export default function Home() {
                   </div>
                   <button
                     onClick={() => {
-                      setRate(1.0);
-                      setPitch(0);
+                      setRate(selectedVoiceId === 'bn-IN-BashkarNeural' ? 0.95 : 1.0);
+                      setPitch(selectedVoiceId === 'bn-IN-BashkarNeural' ? -2 : 0);
                     }}
                     className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-300"
                     title="Reset to defaults"
@@ -550,9 +734,9 @@ export default function Home() {
                 <span>উচ্চারণ ও ব্যবহারের নির্দেশিকা:</span>
               </h4>
               <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-400 pl-1">
-                <li>দাঁড়ি (।), কমা (,) ও প্রশ্নবোধক চিহ্ন দিলে ভয়েস বিরতি অত্যন্ত স্বাভাবিক শোনায়।</li>
-                <li>সংখ্যা (যেমন ২০২৬ বা 2026) স্বয়ংক্রিয়ভাবে সঠিক উচ্চারণে পড়া হবে।</li>
-                <li>যেকোনো ব্রাউজারে মোবাইল ও কম্পিউটারে সহজে MP3 ডাউনলোডযোগ্য।</li>
+                <li><strong>গল্প ও অডিওবুকের জন্য:</strong> &quot;ভাস্কর (গল্পের কথক)&quot; সিলেক্ট করুন। এটি আপনার আপলোড করা নমুনার মতো গম্ভীর ও আকর্ষণীয়।</li>
+                <li>দাঁড়ি (।), কমা (,) ও প্রশ্নবোধক চিহ্ন দিলে আবৃত্তি ও বর্ণনার বিরতি অত্যন্ত বাস্তবসম্মত শোনায়।</li>
+                <li>যেকোনো মোবাইল ও কম্পিউটারে ব্রাউজার থেকে সরাসরি উচ্চমানের MP3 ফাইল ডাউনলোড করুন।</li>
               </ul>
             </div>
           </div>
