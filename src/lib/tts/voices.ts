@@ -2,10 +2,25 @@ import { VoiceOption } from './types';
 
 export const SUPPORTED_VOICES: VoiceOption[] = [
   // ==========================================
-  // 👨 MALE VOICES (পুরুষ কণ্ঠ)
+  // ⚡ CARTESIA SONIC 3.5 FEATURED VOICE (Matching user URL)
   // ==========================================
-  
-  // 1. আপনার আপলোড করা অডিওর মতো গল্পের কথক (Storyteller Narrator)
+  {
+    id: '35b2cfc1-e6fb-4d69-a598-c1780612be4a',
+    name: 'Darío (Steady Operator)',
+    nativeName: 'Darío — Steady Operator (Cartesia Sonic 3.5)',
+    gender: 'male',
+    locale: 'en-US',
+    languageLabel: 'Cartesia Sonic 3.5',
+    badge: '⚡ Sonic 3.5 (Selected)',
+    category: 'storyteller',
+    isRecommended: true,
+    description: 'Cartesia Sonic 3.5 মডেলের শান্ত, গম্ভীর ও অত্যন্ত সাবলীল স্টেডি পুরুষ কণ্ঠ (Speed 1.1x, Volume 2.0)',
+    sampleText: 'Welcome to the Cartesia Sonic voice studio. Ultra-fast, ultra-natural neural speech synthesis.',
+  },
+
+  // ==========================================
+  // 👨 BANGLA MALE VOICES (পুরুষ কণ্ঠ)
+  // ==========================================
   {
     id: 'bn-IN-BashkarNeural',
     name: 'Bashkar (গল্পের কথক)',
@@ -21,7 +36,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'শেষ ভরসা। সেদিন একটা স্কুল বাসের ব্রেক কাজ করা বন্ধ করে দিয়েছিল। মানুষের কাছে নিজের পরিচয় মুখে বলতে হয় না, নিজের কাজই একদিন পরিচয় তৈরি করে দেয়।',
   },
 
-  // 2. গম্ভীর সংবাদ ও প্রামাণ্যচিত্র উপস্থাপক
   {
     id: 'bn-BD-PradeepNeural',
     name: 'Pradeep',
@@ -36,7 +50,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'আমি প্রদীপ। প্রফেশনাল ও গম্ভীর বাংলা ভয়েস ওভারের জন্য আমার ভয়েস ব্যবহার করতে পারেন।',
   },
 
-  // 3. শান্ত ও অনুপ্রেরণামূলক পুরুষ কণ্ঠ
   {
     id: 'bn-IN-SoumyaNeural',
     name: 'Soumya',
@@ -50,7 +63,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'জীবনের প্রতিটি পদক্ষেপে ধৈর্য ও নিষ্ঠাই মানুষের সবচেয়ে বড় শক্তি। শান্ত মনে চেষ্টা চালিয়ে যান।',
   },
 
-  // 4. চটপটে তরুণ ভ্লগার ও বিজ্ঞাপনের কণ্ঠ
   {
     id: 'bn-BD-ArjunNeural',
     name: 'Arjun',
@@ -64,7 +76,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'হ্যালো বন্ধুরা! আজকের ভিডিওতে আমরা দেখতে যাচ্ছি দারুণ একটি প্রযুক্তি, যা আপনার কাজকে সহজ করে তুলবে।',
   },
 
-  // 5. English Multilingual Male Narrator
   {
     id: 'en-US-AndrewMultilingualNeural',
     name: 'Andrew (Multilingual)',
@@ -79,25 +90,9 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'Welcome back. In today’s episode, we explore the boundaries of artificial intelligence and sound.',
   },
 
-  // 6. English Casual & Friendly Male
-  {
-    id: 'en-US-GuyNeural',
-    name: 'Guy',
-    nativeName: 'Guy — Casual & Friendly Male',
-    gender: 'male',
-    locale: 'en-US',
-    languageLabel: 'English (US)',
-    badge: '☕ Casual & Conversational',
-    category: 'general',
-    description: 'Natural, easy-going and conversational male narrator',
-    sampleText: 'Hey everyone, Guy here! Creating audio content has never been this straightforward.',
-  },
-
   // ==========================================
-  // 👩 FEMALE VOICES (নারী কণ্ঠ)
+  // 👩 BANGLA & ENGLISH FEMALE VOICES (নারী কণ্ঠ)
   // ==========================================
-
-  // 7. মিষ্টি ও স্পষ্ট বাংলাদেশি নারী কণ্ঠ
   {
     id: 'bn-BD-NabanitaNeural',
     name: 'Nabanita',
@@ -112,7 +107,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'আমি নবনিতা। সুন্দর ও স্পষ্ট বাংলা ভয়েস দিয়ে আপনার কনটেন্টকে আকর্ষণীয় করে তুলুন।',
   },
 
-  // 8. মার্জিত ও রেডিও উপস্থাপিকা
   {
     id: 'bn-IN-TanishaaNeural',
     name: 'Tanishaa',
@@ -126,7 +120,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'নমস্কার, আমি তানিশা। আপনার যেকোনো লেখার জন্য স্টুডিও মানের স্পষ্ট কন্ঠ।',
   },
 
-  // 9. রোমান্টিক ও আবেগপূর্ণ নারী কণ্ঠ
   {
     id: 'bn-BD-AnanyaNeural',
     name: 'Ananya',
@@ -140,7 +133,6 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     sampleText: 'বৃষ্টিভেজা একাকী বিকেলে স্মৃতির জানালায় দাঁড়িয়ে থাকে একরাশ না বলা কথা।',
   },
 
-  // 10. English Multilingual Studio Female
   {
     id: 'en-US-AvaMultilingualNeural',
     name: 'Ava (Multilingual)',
@@ -154,23 +146,9 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
     isRecommended: true,
     sampleText: 'Hello! I am Ava. I can read your English and mixed text smoothly with natural intonation.',
   },
-
-  // 11. English Cheerful & Professional
-  {
-    id: 'en-US-JennyNeural',
-    name: 'Jenny',
-    nativeName: 'Jenny — Professional Female',
-    gender: 'female',
-    locale: 'en-US',
-    languageLabel: 'English (US)',
-    badge: '💼 Professional',
-    category: 'general',
-    description: 'Clear, cheerful, and versatile female narrator',
-    sampleText: 'Hi there, I am Jenny. Ready to bring your written ideas to life.',
-  },
 ];
 
-export const DEFAULT_VOICE_ID = 'bn-IN-BashkarNeural';
+export const DEFAULT_VOICE_ID = '35b2cfc1-e6fb-4d69-a598-c1780612be4a'; // Matches Cartesia URL default!
 
 export function getVoiceById(voiceId: string): VoiceOption {
   const voice = SUPPORTED_VOICES.find((v) => v.id === voiceId);
