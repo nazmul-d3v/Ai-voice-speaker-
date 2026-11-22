@@ -2,153 +2,142 @@ import { VoiceOption } from './types';
 
 export const SUPPORTED_VOICES: VoiceOption[] = [
   // ==========================================
-  // ⚡ CARTESIA SONIC 3.5 FEATURED VOICE (Matching user URL)
-  // ==========================================
-  {
-    id: '35b2cfc1-e6fb-4d69-a598-c1780612be4a',
-    name: 'Darío (Steady Operator)',
-    nativeName: 'Darío — Steady Operator (Cartesia Sonic 3.5)',
-    gender: 'male',
-    locale: 'en-US',
-    languageLabel: 'Cartesia Sonic 3.5',
-    badge: '⚡ Sonic 3.5 (Selected)',
-    category: 'storyteller',
-    isRecommended: true,
-    description: 'Cartesia Sonic 3.5 মডেলের শান্ত, গম্ভীর ও অত্যন্ত সাবলীল স্টেডি পুরুষ কণ্ঠ (Speed 1.1x, Volume 2.0)',
-    sampleText: 'Welcome to the Cartesia Sonic voice studio. Ultra-fast, ultra-natural neural speech synthesis.',
-  },
-
-  // ==========================================
-  // 👨 BANGLA MALE VOICES (পুরুষ কণ্ঠ)
+  // 👨 REAL HUMAN MALE VOICES (বাস্তব পুরুষ কণ্ঠ)
   // ==========================================
   {
     id: 'bn-IN-BashkarNeural',
-    name: 'Bashkar (গল্পের কথক)',
-    nativeName: 'ভাস্কর — গল্পের কথক (Storyteller)',
+    name: 'ভাস্কর (বাস্তব গল্পের কথক)',
+    nativeName: 'ভাস্কর — বাস্তব গল্পের কথক (Storyteller Male)',
     gender: 'male',
     locale: 'bn-IN',
     languageLabel: 'বাংলা (গল্প ও অডিওবুক)',
-    badge: '⭐ আপনার অডিও ডেমো',
+    badge: '⭐ ১০০% বাস্তব মানুষের কণ্ঠ (Male)',
     category: 'storyteller',
     demoAudioUrl: '/audio/storyteller-male-demo.wav',
-    description: 'আপনার আপলোড করা অডিওর মতো শান্ত, গম্ভীর, নাটকীয় ও অত্যন্ত সাবলীল গল্পের কথক পুরুষ কণ্ঠ (অডিওবুক, ড্রামা ও সাসপেন্সের জন্য সেরা)',
+    description: 'আপনার দেওয়া অডিওর মতো শান্ত, গম্ভীর, নাটকীয় ও বাস্তবসম্মত মানুষের বাচনভঙ্গি (অডিওবুক, ড্রামা ও সাসপেন্সের জন্য সেরা)',
     isRecommended: true,
     sampleText: 'শেষ ভরসা। সেদিন একটা স্কুল বাসের ব্রেক কাজ করা বন্ধ করে দিয়েছিল। মানুষের কাছে নিজের পরিচয় মুখে বলতে হয় না, নিজের কাজই একদিন পরিচয় তৈরি করে দেয়।',
   },
 
-  {
-    id: 'bn-BD-PradeepNeural',
-    name: 'Pradeep',
-    nativeName: 'প্রদীপ — গম্ভীর ও সংবাদ উপস্থাপক',
-    gender: 'male',
-    locale: 'bn-BD',
-    languageLabel: 'বাংলা (বাংলাদেশ)',
-    badge: '🎙️ সংবাদ ও উপস্থাপন',
-    category: 'news',
-    description: 'গম্ভীর, আত্মবিশ্বাসী ও পেশাদার পুরুষ কণ্ঠ (সংবাদ, উপস্থাপনা ও টিউটোরিয়ালের জন্য দারুণ)',
-    isRecommended: true,
-    sampleText: 'আমি প্রদীপ। প্রফেশনাল ও গম্ভীর বাংলা ভয়েস ওভারের জন্য আমার ভয়েস ব্যবহার করতে পারেন।',
-  },
-
-  {
-    id: 'bn-IN-SoumyaNeural',
-    name: 'Soumya',
-    nativeName: 'সৌম্য — শান্ত ও অনুপ্রেরণামূলক',
-    gender: 'male',
-    locale: 'bn-IN',
-    languageLabel: 'বাংলা (শান্ত বাচনভঙ্গি)',
-    badge: '🌿 শান্ত ও ইতিবাচক',
-    category: 'calm',
-    description: 'ধীরস্থির, শান্ত ও অত্যন্ত শ্রুতিমধুর পুরুষ কণ্ঠ (মোটিভেশন, অডিওবুক ও মেডিটেশনের জন্য সেরা)',
-    sampleText: 'জীবনের প্রতিটি পদক্ষেপে ধৈর্য ও নিষ্ঠাই মানুষের সবচেয়ে বড় শক্তি। শান্ত মনে চেষ্টা চালিয়ে যান।',
-  },
-
-  {
-    id: 'bn-BD-ArjunNeural',
-    name: 'Arjun',
-    nativeName: 'অর্জুন — তারুণ্যদীপ্ত ও ভ্লগার',
-    gender: 'male',
-    locale: 'bn-BD',
-    languageLabel: 'বাংলা (বাংলাদেশ)',
-    badge: '⚡ উদ্যমী ও আধুনিক',
-    category: 'energetic',
-    description: 'চটপটে, উদ্যমী ও প্রাণবন্ত তরুণ কণ্ঠ (ইউটিউব ভিডিও, ভ্লগ ও বিজ্ঞাপনের জন্য উপযুক্ত)',
-    sampleText: 'হ্যালো বন্ধুরা! আজকের ভিডিওতে আমরা দেখতে যাচ্ছি দারুণ একটি প্রযুক্তি, যা আপনার কাজকে সহজ করে তুলবে।',
-  },
-
-  {
-    id: 'en-US-AndrewMultilingualNeural',
-    name: 'Andrew (Multilingual)',
-    nativeName: 'Andrew — Cinematic Male Narrator',
-    gender: 'male',
-    locale: 'en-US',
-    languageLabel: 'English (US)',
-    badge: '🎬 Cinematic Narrator',
-    category: 'storyteller',
-    description: 'Deep, cinematic, warm and resonant male narrator for podcasts, stories, and documentaries',
-    isRecommended: true,
-    sampleText: 'Welcome back. In today’s episode, we explore the boundaries of artificial intelligence and sound.',
-  },
-
   // ==========================================
-  // 👩 BANGLA & ENGLISH FEMALE VOICES (নারী কণ্ঠ)
+  // 👩 REAL HUMAN FEMALE VOICES (বাস্তব নারী কণ্ঠ)
   // ==========================================
   {
     id: 'bn-BD-NabanitaNeural',
-    name: 'Nabanita',
-    nativeName: 'নবনিতা — মিষ্টি ও সাবলীল নারী',
+    name: 'নবনিতা (বাস্তব মিষ্টি নারী)',
+    nativeName: 'নবনিতা — বাস্তব মিষ্টি নারী (Natural Female)',
     gender: 'female',
     locale: 'bn-BD',
     languageLabel: 'বাংলা (বাংলাদেশ)',
-    badge: '🌸 মিষ্টি ও স্পষ্ট',
+    badge: '🌸 ১০০% বাস্তব মানুষের কণ্ঠ (Female)',
     category: 'general',
-    description: 'স্বাভাবিক, মিষ্টি ও অত্যন্ত স্পষ্ট নারী কণ্ঠ (ভিডিও, অডিওবুক ও বর্ণনার জন্য সেরা)',
+    demoAudioUrl: '/audio/nabanita-female-demo.mp3',
+    description: 'সম্পূর্ণ স্বাভাবিক, মিষ্টি, প্রাণবন্ত ও বাস্তবসম্মত বাংলাদেশি নারী কণ্ঠ (ভিডিও, অডিওবুক ও কন্টেন্ট তৈরি)',
     isRecommended: true,
-    sampleText: 'আমি নবনিতা। সুন্দর ও স্পষ্ট বাংলা ভয়েস দিয়ে আপনার কনটেন্টকে আকর্ষণীয় করে তুলুন।',
+    sampleText: 'নমস্কার। আমি নবনিতা। আমার কণ্ঠ সম্পূর্ণ প্রাকৃতিক, মিষ্টি এবং বাস্তবসম্মত মানুষের মতো বাচনভঙ্গিতে সাজানো।',
+  },
+
+  {
+    id: 'bn-BD-PradeepNeural',
+    name: 'প্রদীপ (সংবাদ ও উপস্থাপক)',
+    nativeName: 'প্রদীপ — গম্ভীর সংবাদ ও উপস্থাপক',
+    gender: 'male',
+    locale: 'bn-BD',
+    languageLabel: 'বাংলা (বাংলাদেশ)',
+    badge: '🎙️ স্পষ্ট ও প্রফেশনাল',
+    category: 'news',
+    demoAudioUrl: '/audio/pradeep-male-demo.mp3',
+    description: 'গম্ভীর, আত্মবিশ্বাসী ও অত্যন্ত স্পষ্ট প্রফেশনাল উপস্থাপক পুরুষ কণ্ঠ (সংবাদ, টিউটোরিয়াল ও ডকুমেন্টারি)',
+    isRecommended: true,
+    sampleText: 'আমি প্রদীপ। গম্ভীর, স্পষ্ট এবং পেশাদার উপস্থাপনার জন্য আমার কণ্ঠ মানুষের মতোই স্বাভাবিক ও স্পষ্ট।',
   },
 
   {
     id: 'bn-IN-TanishaaNeural',
-    name: 'Tanishaa',
-    nativeName: 'তানিশা — মার্জিত উপস্থাপিকা',
+    name: 'তানিশা (রেডিও উপস্থাপিকা)',
+    nativeName: 'তানিশা — মার্জিত উপস্থাপিকা (Radio Presenter)',
     gender: 'female',
     locale: 'bn-IN',
     languageLabel: 'বাংলা (ভারত)',
-    badge: '✨ স্পষ্ট উপস্থাপনা',
+    badge: '✨ মার্জিত ও মিষ্টি',
     category: 'news',
-    description: 'শ্রুতিমধুর ও সাবলীল রেডিও উপস্থাপিকা বাচনভঙ্গি',
-    sampleText: 'নমস্কার, আমি তানিশা। আপনার যেকোনো লেখার জন্য স্টুডিও মানের স্পষ্ট কন্ঠ।',
+    description: 'শ্রুতিমধুর, স্পষ্ট ও বাস্তবসম্মত রেডিও উপস্থাপিকা বাচনভঙ্গি',
+    sampleText: 'নমস্কার, আমি তানিশা। আপনার যেকোনো লেখার জন্য স্টুডিও মানের স্পষ্ট ও স্বাভাবিক কণ্ঠ।',
+  },
+
+  // ==========================================
+  // ⚡ CARTESIA SONIC 3.5 FEATURED VOICE (Matching user URL)
+  // ==========================================
+  {
+    id: '35b2cfc1-e6fb-4d69-a598-c1780612be4a',
+    name: 'Darío (Cartesia Sonic 3.5)',
+    nativeName: 'Darío — Steady Operator (Cartesia Sonic 3.5)',
+    gender: 'male',
+    locale: 'en-US',
+    languageLabel: 'Cartesia Sonic 3.5',
+    badge: '⚡ Sonic 3.5 Model',
+    category: 'storyteller',
+    isRecommended: true,
+    description: 'Cartesia Sonic 3.5 মডেলের শান্ত, গম্ভীর ও সাবলীল স্টেডি পুরুষ কণ্ঠ (Ultra-low Latency)',
+    sampleText: 'Welcome to the Cartesia Sonic playground. I am Darío, a steady and articulate voice operator designed for ultra-low latency.',
   },
 
   {
-    id: 'bn-BD-AnanyaNeural',
-    name: 'Ananya',
-    nativeName: 'অনন্যা — আবেগঘন ও কবিতা আবৃত্তি',
-    gender: 'female',
-    locale: 'bn-BD',
-    languageLabel: 'বাংলা (বাংলাদেশ)',
-    badge: '📖 কবিতা ও গল্প',
-    category: 'calm',
-    description: 'কোমল, আবেগঘন ও কাব্যিক বাচনভঙ্গি (কবিতা, রোমান্টিক গল্প ও স্মৃতিকথার জন্য সেরা)',
-    sampleText: 'বৃষ্টিভেজা একাকী বিকেলে স্মৃতির জানালায় দাঁড়িয়ে থাকে একরাশ না বলা কথা।',
+    id: 'en-US-AndrewMultilingualNeural',
+    name: 'Andrew (Cinematic Male)',
+    nativeName: 'Andrew — Ultra-Realistic Cinematic Male',
+    gender: 'male',
+    locale: 'en-US',
+    languageLabel: 'English (US)',
+    badge: '🎬 Studio Human Male',
+    category: 'storyteller',
+    description: 'Deep, cinematic, warm and resonant human-sounding male narrator for podcasts, stories, and documentaries',
+    isRecommended: true,
+    sampleText: 'Welcome back. In today’s episode, we explore the boundaries of artificial intelligence and sound.',
   },
 
   {
     id: 'en-US-AvaMultilingualNeural',
-    name: 'Ava (Multilingual)',
-    nativeName: 'Ava — Multilingual Studio Female',
+    name: 'Ava (Studio Female)',
+    nativeName: 'Ava — Ultra-Realistic Studio Female',
     gender: 'female',
     locale: 'en-US',
     languageLabel: 'English (US)',
-    badge: '🌐 Multilingual Studio',
+    badge: '🌐 Studio Human Female',
     category: 'general',
-    description: 'Natural, expressive multilingual studio voice with perfect cadence',
+    description: 'Natural, expressive human-like multilingual studio voice with perfect cadence and breathing',
     isRecommended: true,
-    sampleText: 'Hello! I am Ava. I can read your English and mixed text smoothly with natural intonation.',
+    sampleText: 'Hello! I am Ava. I can read your English and mixed text smoothly with natural human intonation.',
+  },
+
+  {
+    id: 'bn-IN-SoumyaNeural',
+    name: 'সৌম্য (শান্ত ও অনুপ্রেরণামূলক)',
+    nativeName: 'সৌম্য — শান্ত ও অনুপ্রেরণামূলক',
+    gender: 'male',
+    locale: 'bn-IN',
+    languageLabel: 'বাংলা (শান্ত বাচনভঙ্গি)',
+    badge: '🌿 শান্ত ও মেডিটেশন',
+    category: 'calm',
+    description: 'ধীরস্থির, শান্ত ও অত্যন্ত শ্রুতিমধুর পুরুষ কণ্ঠ (মোটিভেশন, অডিওবুক ও মেডিটেশন)',
+    sampleText: 'জীবনের প্রতিটি পদক্ষেপে ধৈর্য ও নিষ্ঠাই মানুষের সবচেয়ে বড় শক্তি। শান্ত মনে চেষ্টা চালিয়ে যান।',
+  },
+
+  {
+    id: 'bn-BD-AnanyaNeural',
+    name: 'অনন্যা (আবেগঘন ও আবৃত্তি)',
+    nativeName: 'অনন্যা — আবেগঘন ও কবিতা আবৃত্তি',
+    gender: 'female',
+    locale: 'bn-BD',
+    languageLabel: 'বাংলা (বাংলাদেশ)',
+    badge: '📖 কবিতা ও অনুভূতি',
+    category: 'calm',
+    description: 'কোমল, আবেগঘন ও কাব্যিক বাচনভঙ্গি (কবিতা, রোমান্টিক গল্প ও স্মৃতিকথা)',
+    sampleText: 'বৃষ্টিভেজা একাকী বিকেলে স্মৃতির জানালায় দাঁড়িয়ে থাকে একরাশ না বলা কথা।',
   },
 ];
 
-export const DEFAULT_VOICE_ID = '35b2cfc1-e6fb-4d69-a598-c1780612be4a'; // Matches Cartesia URL default!
+export const DEFAULT_VOICE_ID = 'bn-IN-BashkarNeural'; // Default to the ultra-realistic storyteller male voice!
 
 export function getVoiceById(voiceId: string): VoiceOption {
   const voice = SUPPORTED_VOICES.find((v) => v.id === voiceId);

@@ -38,6 +38,8 @@ const SAMPLE_DARIO = `Welcome to the Cartesia Sonic playground. I am Darío, a s
 
 const SAMPLE_STORY = `শেষ ভরসা। সেদিন একটা স্কুল বাসের ব্রেক কাজ করা বন্ধ করে দিয়েছিল। বাসের ভেতরে তখন ১৫টি শিশু। বাইরে প্রচণ্ড বৃষ্টি, কেউ এগিয়ে আসার সাহস পাচ্ছিল না। ঠিক তখনই এগিয়ে এলো আশা। পেশায় সে একজন তরুণী মেকানিক। কিন্তু বাসচালক তাকে দেখে বলল, তুমি পারবে তো? এত বড় বাস ঠিক করা কি তোমার কাজ? আশা কোনো উত্তর দিল না। সে দ্রুত বাসের নিচে গিয়ে পরীক্ষা শুরু করল। মানুষের কাছে নিজের পরিচয় মুখে বলতে হয় না, নিজের কাজই একদিন পরিচয় তৈরি করে দেয়।`;
 
+const SAMPLE_FEMALE = `নমস্কার। আমি নবনিতা। আমার কণ্ঠ সম্পূর্ণ প্রাকৃতিক, মিষ্টি এবং বাস্তবসম্মত মানুষের মতো বাচনভঙ্গিতে সাজানো। যেকোনো ভিডিও, অডিওবুক বা উপস্থাপনার জন্য এই কণ্ঠ আপনার লেখার প্রাণবন্ত ভাব বজায় রাখবে।`;
+
 const SAMPLE_BANGLA = `আজকের দিনে কৃত্রিম বুদ্ধিমত্তা আমাদের ভাষাকে নতুন মাত্রা দিয়েছে। আপনি চাইলে সহজেই যেকোনো বাংলা লেখা থেকে স্টুডিও মানের স্পষ্ট ও প্রাকৃতিক ভয়েস তৈরি করতে পারেন। ২০২৬ সালের এই নতুন প্রযুক্তি আপনার কনটেন্টকে আরও আকর্ষণীয় করবে।`;
 
 const SAMPLE_ENGLISH = `Artificial intelligence is transforming how we communicate across borders and languages. With cutting-edge neural voice synthesis, you can generate crystal-clear, studio-quality speech for your videos, podcasts, and digital content effortlessly.`;
@@ -45,16 +47,16 @@ const SAMPLE_ENGLISH = `Artificial intelligence is transforming how we communica
 const MAX_CHARS = 3000;
 
 export default function Home() {
-  const [text, setText] = useState(SAMPLE_DARIO);
-  const [selectedVoiceId, setSelectedVoiceId] = useState(DEFAULT_VOICE_ID);
+  const [text, setText] = useState(SAMPLE_STORY);
+  const [selectedVoiceId, setSelectedVoiceId] = useState('bn-IN-BashkarNeural');
   
-  // URL matching parameters: speed=1.1, volume=2, model_id=sonic-3.5
+  // Human Realism parameters: natural speed=1.0x, volume=1.0, pitch=0
   const [selectedModel, setSelectedModel] = useState<'sonic-3.5' | 'sonic-multilingual' | 'azure-neural'>('sonic-3.5');
-  const [speed, setSpeed] = useState(1.1);
-  const [volume, setVolume] = useState(2.0);
+  const [speed, setSpeed] = useState(1.0);
+  const [volume, setVolume] = useState(1.0);
   const [pitch, setPitch] = useState(0);
   
-  const [detectedLang, setDetectedLang] = useState<DetectedLanguage>('en');
+  const [detectedLang, setDetectedLang] = useState<DetectedLanguage>('bn');
   
   // Filters: Gender ('all' | 'male' | 'female') & Language ('all' | 'bn' | 'en')
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
@@ -143,6 +145,7 @@ export default function Home() {
           voiceId: voice.id,
           rate: speed,
           pitch,
+          volume,
         }),
       });
 
@@ -191,6 +194,7 @@ export default function Home() {
           voiceId: selectedVoiceId,
           rate: speed,
           pitch,
+          volume,
         }),
       });
 
@@ -429,41 +433,70 @@ export default function Home() {
 
                 {/* Sample buttons */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] text-slate-500">Presets:</span>
+                  <span className="text-[11px] text-slate-500">বাস্তব কণ্ঠ প্রিসেট:</span>
+                  <button
+                    onClick={() => {
+                      setText(SAMPLE_STORY);
+                      setSelectedVoiceId('bn-IN-BashkarNeural');
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/25 transition-colors"
+                  >
+                    <BookOpen className="h-3 w-3" />
+                    <span>⭐ বাস্তব পুরুষ (ভাস্কর)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setText(SAMPLE_FEMALE);
+                      setSelectedVoiceId('bn-BD-NabanitaNeural');
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-pink-500/15 border border-pink-500/40 px-2 py-0.5 text-[11px] font-semibold text-pink-300 hover:bg-pink-500/25 transition-colors"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    <span>🌸 বাস্তব নারী (নবনিতা)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setText(SAMPLE_BANGLA);
+                      setSelectedVoiceId('bn-BD-PradeepNeural');
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-cyan-500/15 border border-cyan-500/40 px-2 py-0.5 text-[11px] font-semibold text-cyan-300 hover:bg-cyan-500/25 transition-colors"
+                  >
+                    <Mic className="h-3 w-3" />
+                    <span>🎙️ সংবাদ পুরুষ (প্রদীপ)</span>
+                  </button>
                   <button
                     onClick={() => {
                       setText(SAMPLE_DARIO);
                       setSelectedVoiceId('35b2cfc1-e6fb-4d69-a598-c1780612be4a');
                       setSpeed(1.1);
                       setVolume(2.0);
+                      setPitch(0);
                     }}
-                    className="flex items-center gap-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[11px] font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+                    className="flex items-center gap-1 rounded-lg bg-slate-800/80 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Zap className="h-3 w-3" />
                     <span>Darío (Sonic 3.5)</span>
                   </button>
                   <button
                     onClick={() => {
-                      setText(SAMPLE_STORY);
-                      setSelectedVoiceId('bn-IN-BashkarNeural');
-                      setSpeed(0.95);
+                      setText(SAMPLE_ENGLISH);
+                      setSelectedVoiceId('en-US-AndrewMultilingualNeural');
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
                     }}
-                    className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20 transition-colors"
-                  >
-                    <BookOpen className="h-3 w-3" />
-                    <span>শেষ ভরসা (Story)</span>
-                  </button>
-                  <button
-                    onClick={() => setText(SAMPLE_BANGLA)}
                     className="rounded-lg bg-slate-800/80 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
-                    বাংলা
-                  </button>
-                  <button
-                    onClick={() => setText(SAMPLE_ENGLISH)}
-                    className="rounded-lg bg-slate-800/80 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  >
-                    English
+                    English (Studio)
                   </button>
                 </div>
               </div>
@@ -651,31 +684,77 @@ export default function Home() {
                 })}
               </div>
 
-              {/* Cartesia Tuning Controls: Speed, Volume & Pitch */}
+              {/* Realism Tuning Controls: Speed, Volume & Pitch */}
               <div className="space-y-3.5 rounded-xl border border-slate-800/80 bg-slate-950/60 p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
                     <SlidersHorizontal className="h-3.5 w-3.5 text-cyan-400" />
-                    <span>Voice Settings (Cartesia Sonic)</span>
+                    <span>কণ্ঠ নিয়ন্ত্রণ ও বাস্তবতা (Realism Tuning)</span>
                   </div>
+                  <button
+                    onClick={() => {
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className="flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold"
+                    title="Reset to 100% natural human voice settings"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    <span>বাস্তব মানব কণ্ঠ (1.0x / 1.0)</span>
+                  </button>
+                </div>
+
+                {/* Realism Mode Quick Chips */}
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  <button
+                    onClick={() => {
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className={`rounded-lg py-1 px-2 text-[10px] font-semibold transition-all border ${
+                      speed === 1.0 && volume === 1.0
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    🎙️ বাস্তব মানুষ (Natural)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSpeed(0.95);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className={`rounded-lg py-1 px-2 text-[10px] font-semibold transition-all border ${
+                      speed === 0.95
+                        ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    📖 গভীর কথক (Story)
+                  </button>
                   <button
                     onClick={() => {
                       setSpeed(1.1);
                       setVolume(2.0);
                       setPitch(0);
                     }}
-                    className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-300"
-                    title="Reset to URL parameters"
+                    className={`rounded-lg py-1 px-2 text-[10px] font-semibold transition-all border ${
+                      speed === 1.1 && volume === 2.0
+                        ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
                   >
-                    <RotateCcw className="h-3 w-3" />
-                    <span>Default (1.1x / 2.0)</span>
+                    ⚡ সোনিক ফাস্ট (Sonic 1.1x)
                   </button>
                 </div>
 
-                {/* Speed Slider (URL parameter: speed=1.1) */}
+                {/* Speed Slider */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Speed (গতি):</span>
+                    <span className="text-slate-400">Speed (গতি — স্বাভাবিক মানুষের মতো 1.0x রাখুন):</span>
                     <span className="font-mono font-bold text-emerald-400">{speed.toFixed(2)}x</span>
                   </div>
                   <input
@@ -688,16 +767,17 @@ export default function Home() {
                     className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-emerald-400"
                   />
                   <div className="flex justify-between text-[10px] text-slate-600">
-                    <span>0.5x</span>
-                    <span className="text-emerald-400 font-semibold">1.1x (URL)</span>
-                    <span>2.0x</span>
+                    <span>0.5x (ধীর)</span>
+                    <span className="text-emerald-400 font-semibold">1.0x (বাস্তব মানুষ)</span>
+                    <span>1.1x (Sonic)</span>
+                    <span>2.0x (দ্রুত)</span>
                   </div>
                 </div>
 
-                {/* Volume Slider (URL parameter: volume=2) */}
+                {/* Volume Slider */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Volume (শব্দের মাত্রা):</span>
+                    <span className="text-slate-400">Volume (শব্দের মাত্রা — স্বাভাবিক 1.0 রাখুন):</span>
                     <span className="font-mono font-bold text-cyan-400">{volume.toFixed(1)}</span>
                   </div>
                   <input
@@ -711,7 +791,8 @@ export default function Home() {
                   />
                   <div className="flex justify-between text-[10px] text-slate-600">
                     <span>0.5</span>
-                    <span className="text-cyan-400 font-semibold">2.0 (URL)</span>
+                    <span className="text-cyan-400 font-semibold">1.0 (স্টুডিও নরমাল)</span>
+                    <span>2.0 (Sonic Boost)</span>
                     <span>2.5</span>
                   </div>
                 </div>

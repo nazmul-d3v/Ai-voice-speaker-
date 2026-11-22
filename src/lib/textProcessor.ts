@@ -54,6 +54,40 @@ export function normalizeText(text: string): string {
 }
 
 /**
+ * Enhances text cadence for ultra-realistic, natural human-like speech.
+ * Eliminates robotic rushing by:
+ * 1. Ensuring natural micro-pauses after Bengali Dari (।), commas (,), periods (.), and question marks (?).
+ * 2. Normalizing dashes and ellipses into smooth natural pauses.
+ * 3. Cleaning repetitive punctuation that can cause synthetic audio glitches.
+ */
+export function humanizeSpeechCadence(text: string): string {
+  if (!text) return '';
+
+  return text
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Replace em-dash / long hyphens with comma for natural breath pause
+    .replace(/[—–]/g, ', ')
+    .replace(/\s*--\s*/g, ', ')
+    // Normalize multiple punctuation marks (e.g. "।।", "??", "!!") to single
+    .replace(/।{2,}/g, '।')
+    .replace(/\?{2,}/g, '?')
+    .replace(/!{2,}/g, '!')
+    .replace(/\.{3,}/g, '...')
+    // Remove awkward whitespace directly before punctuation
+    .replace(/\s+([।,?!;:.])/g, '$1')
+    // Ensure space after Bengali Dari (।) if immediately followed by another character
+    .replace(/।([^\s\d])/g, '। $1')
+    // Ensure space after comma, question mark, exclamation if followed by another character
+    .replace(/([,?!;:।])([^\s\d"'»])/g, '$1 $2')
+    // Collapse multiple spaces
+    .replace(/[ \t]+/g, ' ')
+    // Preserve natural paragraph breaks
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
  * Splits text into natural sentence chunks based on Bengali Dari (।),
  * periods (.), exclamation marks (!), question marks (?), or linebreaks.
  * Ensures sentence integrity and natural pauses without breaking Bengali conjuncts.

@@ -22,6 +22,7 @@ export interface TTSRequest {
   voiceId: string;
   rate?: number; // 0.5 to 2.0 (default 1.0)
   pitch?: number; // -10 to 10 (default 0)
+  volume?: number; // 0.5 to 2.0 (default 1.0)
   language?: string;
 }
 

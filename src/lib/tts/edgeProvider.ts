@@ -1,24 +1,32 @@
 import { EdgeTTS } from '@andresaya/edge-tts';
 import { TTSRequest, TTSResult } from './types';
-import { detectLanguage } from '../textProcessor';
+import { detectLanguage, humanizeSpeechCadence } from '../textProcessor';
 
 /**
- * High-definition Neural TTS Provider (Zero-Config, Free):
- * Connects directly to Microsoft Neural TTS voices:
+ * Ultra-Realistic Neural TTS Provider (Zero-Config, Free):
+ * Connects directly to Microsoft Neural TTS voices with 96kbps HD audio:
  * - 35b2cfc1-e6fb-4d69-a598-c1780612be4a (Cartesia Sonic 3.5 Darío - Steady Operator)
- * - bn-IN-BashkarNeural (Exact male storyteller voice matching uploaded audio)
- * - bn-BD-PradeepNeural (Bangladeshi male voice)
- * - bn-BD-NabanitaNeural (Bangladeshi female voice)
+ * - bn-IN-BashkarNeural (Ultra-realistic male storyteller voice matching uploaded audio)
+ * - bn-BD-PradeepNeural (Bangladeshi male voice - professional & clear)
+ * - bn-BD-NabanitaNeural (Bangladeshi female voice - warm & human)
+ * - bn-IN-TanishaaNeural (Bengali female presenter)
  * - en-US-AndrewMultilingualNeural, en-US-AvaMultilingualNeural, etc.
  */
 export async function synthesizeEdge(req: TTSRequest): Promise<TTSResult> {
   const tts = new EdgeTTS();
 
-  const ratePercent = req.rate ? Math.round((req.rate - 1.0) * 100) : 10; // Default +10% (1.1x)
+  // Natural human tempo: 1.0x (0% rate adjustment).
+  const rateMultiplier = req.rate ?? 1.0;
+  const ratePercent = Math.round((rateMultiplier - 1.0) * 100);
   const rateStr = ratePercent >= 0 ? `+${ratePercent}%` : `${ratePercent}%`;
 
   const pitchHz = req.pitch ?? 0;
   const pitchStr = pitchHz >= 0 ? `+${pitchHz}Hz` : `${pitchHz}Hz`;
+
+  // Volume: calculate volume adjustment percentage without clipping
+  const volMultiplier = req.volume ?? 1.0;
+  const volPercent = Math.max(-50, Math.min(50, Math.round((volMultiplier - 1.0) * 50)));
+  const volStr = volPercent >= 0 ? `+${volPercent}%` : `${volPercent}%`;
 
   // Map Cartesia Sonic 3.5 voice ID or custom internal IDs
   let targetVoice = req.voiceId;
@@ -33,9 +41,15 @@ export async function synthesizeEdge(req: TTSRequest): Promise<TTSResult> {
     targetVoice = 'bn-BD-NabanitaNeural';
   }
 
-  await tts.synthesize(req.text, targetVoice, {
+  // Pre-process text to add human-like cadence and natural breathing pauses
+  const naturalText = humanizeSpeechCadence(req.text);
+
+  // 96kbps HD audio for studio-grade warmth and zero robotic tinny compression
+  await tts.synthesize(naturalText, targetVoice, {
+    outputFormat: 'audio-24khz-96kbitrate-mono-mp3',
     rate: rateStr,
     pitch: pitchStr,
+    volume: volStr,
   });
 
   const audioBuffer = tts.toBuffer();

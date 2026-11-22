@@ -12,6 +12,7 @@ const ttsRequestSchema = z.object({
   voiceId: z.string().default('bn-BD-NabanitaNeural'),
   rate: z.number().min(0.5).max(2.0).default(1.0),
   pitch: z.number().min(-10).max(10).default(0),
+  volume: z.number().min(0.5).max(2.5).default(1.0),
 });
 
 export async function POST(request: NextRequest) {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    const { text, voiceId, rate, pitch } = parseResult.data;
+    const { text, voiceId, rate, pitch, volume } = parseResult.data;
     const cleanText = normalizeText(text);
 
     if (!cleanText) {
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
       voiceId,
       rate,
       pitch,
+      volume,
       language: detectedLang,
     });
 
