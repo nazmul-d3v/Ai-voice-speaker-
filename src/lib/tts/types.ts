@@ -15,6 +15,8 @@ export interface VoiceOption {
   badge?: string;
   category?: 'storyteller' | 'general' | 'news' | 'calm' | 'energetic';
   demoAudioUrl?: string;
+  defaultRate?: number;
+  defaultPitch?: number;
 }
 
 export interface TTSRequest {

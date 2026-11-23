@@ -5,6 +5,23 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
   // 👨 REAL HUMAN MALE VOICES (বাস্তব পুরুষ কণ্ঠ)
   // ==========================================
   {
+    id: 'bn-BD-PradeepStoryNeural',
+    name: 'প্রদীপ (গভীর আবেগঘন কথক)',
+    nativeName: 'প্রদীপ — গভীর ও আবেগঘন কথক (Deep Storyteller)',
+    gender: 'male',
+    locale: 'bn-BD',
+    languageLabel: 'বাংলা (আবেগঘন অডিওবুক ও গল্প)',
+    badge: '🔥 গভীর আবেগঘন কথক (-10% / -5Hz)',
+    category: 'storyteller',
+    defaultRate: 0.90,
+    defaultPitch: -5,
+    demoAudioUrl: '/audio/pradeep-storyteller-demo.mp3',
+    description: 'শান্ত, গম্ভীর, উষ্ণ ও গভীর আবেগঘন বাংলাদেশি পুরুষ কণ্ঠ (টউনিং: স্পিড -১০%, পিচ -৫Hz — অডিওবুক, ড্রামা ও সাসপেন্সের জন্য পারফেক্ট)',
+    isRecommended: true,
+    sampleText: 'ঝড় থেমে গেছে। চারপাশ নিস্তব্ধ। কিন্তু বুকের ভেতর জমে থাকা না-বলা কথাগুলো যেন আজও এক শান্ত নদীর মতো বয়ে চলেছে। মানুষের আসল শক্তি তার নীরব ধৈর্যে।',
+  },
+
+  {
     id: 'bn-IN-BashkarNeural',
     name: 'ভাস্কর (বাস্তব গল্পের কথক)',
     nativeName: 'ভাস্কর — বাস্তব গল্পের কথক (Storyteller Male)',

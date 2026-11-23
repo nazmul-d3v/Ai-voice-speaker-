@@ -34,11 +34,13 @@ import {
 } from 'lucide-react';
 
 // Samples
-const SAMPLE_DARIO = `Welcome to the Cartesia Sonic playground. I am Darío, a steady and articulate voice operator designed for ultra-low latency, studio-quality speech generation.`;
+const SAMPLE_PRADEEP_STORY = `ঝড় থেমে গেছে। চারপাশ নিস্তব্ধ। কিন্তু বুকের ভেতর জমে থাকা না-বলা কথাগুলো যেন আজও এক শান্ত নদীর মতো বয়ে চলেছে। মানুষের আসল শক্তি তার নীরব ধৈর্যে। জীবনের কঠিন সময়ে যিনি শান্ত থাকতে পারেন, শেষ বিজয় তারই হয়।`;
 
 const SAMPLE_STORY = `শেষ ভরসা। সেদিন একটা স্কুল বাসের ব্রেক কাজ করা বন্ধ করে দিয়েছিল। বাসের ভেতরে তখন ১৫টি শিশু। বাইরে প্রচণ্ড বৃষ্টি, কেউ এগিয়ে আসার সাহস পাচ্ছিল না। ঠিক তখনই এগিয়ে এলো আশা। পেশায় সে একজন তরুণী মেকানিক। কিন্তু বাসচালক তাকে দেখে বলল, তুমি পারবে তো? এত বড় বাস ঠিক করা কি তোমার কাজ? আশা কোনো উত্তর দিল না। সে দ্রুত বাসের নিচে গিয়ে পরীক্ষা শুরু করল। মানুষের কাছে নিজের পরিচয় মুখে বলতে হয় না, নিজের কাজই একদিন পরিচয় তৈরি করে দেয়।`;
 
 const SAMPLE_FEMALE = `নমস্কার। আমি নবনিতা। আমার কণ্ঠ সম্পূর্ণ প্রাকৃতিক, মিষ্টি এবং বাস্তবসম্মত মানুষের মতো বাচনভঙ্গিতে সাজানো। যেকোনো ভিডিও, অডিওবুক বা উপস্থাপনার জন্য এই কণ্ঠ আপনার লেখার প্রাণবন্ত ভাব বজায় রাখবে।`;
+
+const SAMPLE_DARIO = `Welcome to the Cartesia Sonic playground. I am Darío, a steady and articulate voice operator designed for ultra-low latency, studio-quality speech generation.`;
 
 const SAMPLE_BANGLA = `আজকের দিনে কৃত্রিম বুদ্ধিমত্তা আমাদের ভাষাকে নতুন মাত্রা দিয়েছে। আপনি চাইলে সহজেই যেকোনো বাংলা লেখা থেকে স্টুডিও মানের স্পষ্ট ও প্রাকৃতিক ভয়েস তৈরি করতে পারেন। ২০২৬ সালের এই নতুন প্রযুক্তি আপনার কনটেন্টকে আরও আকর্ষণীয় করবে।`;
 
@@ -47,14 +49,14 @@ const SAMPLE_ENGLISH = `Artificial intelligence is transforming how we communica
 const MAX_CHARS = 3000;
 
 export default function Home() {
-  const [text, setText] = useState(SAMPLE_STORY);
-  const [selectedVoiceId, setSelectedVoiceId] = useState('bn-IN-BashkarNeural');
+  const [text, setText] = useState(SAMPLE_PRADEEP_STORY);
+  const [selectedVoiceId, setSelectedVoiceId] = useState('bn-BD-PradeepStoryNeural');
   
-  // Human Realism parameters: natural speed=1.0x, volume=1.0, pitch=0
+  // Human Realism parameters: deep storytelling default (speed=0.90x / -10%, volume=1.0, pitch=-5Hz)
   const [selectedModel, setSelectedModel] = useState<'sonic-3.5' | 'sonic-multilingual' | 'azure-neural'>('sonic-3.5');
-  const [speed, setSpeed] = useState(1.0);
+  const [speed, setSpeed] = useState(0.90);
   const [volume, setVolume] = useState(1.0);
-  const [pitch, setPitch] = useState(0);
+  const [pitch, setPitch] = useState(-5);
   
   const [detectedLang, setDetectedLang] = useState<DetectedLanguage>('bn');
   
@@ -436,6 +438,19 @@ export default function Home() {
                   <span className="text-[11px] text-slate-500">বাস্তব কণ্ঠ প্রিসেট:</span>
                   <button
                     onClick={() => {
+                      setText(SAMPLE_PRADEEP_STORY);
+                      setSelectedVoiceId('bn-BD-PradeepStoryNeural');
+                      setSpeed(0.90);
+                      setVolume(1.0);
+                      setPitch(-5);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-amber-500/15 border border-amber-500/40 px-2 py-0.5 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors"
+                  >
+                    <BookOpen className="h-3 w-3 text-amber-400" />
+                    <span>🔥 প্রদীপ (গভীর কথক -10% / -5Hz)</span>
+                  </button>
+                  <button
+                    onClick={() => {
                       setText(SAMPLE_STORY);
                       setSelectedVoiceId('bn-IN-BashkarNeural');
                       setSpeed(1.0);
@@ -510,6 +525,7 @@ export default function Home() {
               detectedLang={detectedLang === 'unknown' ? 'bn' : detectedLang}
               isMaleVoice={selectedVoice.gender === 'male'}
               autoPlay={true}
+              isLoading={isLoading}
             />
 
             {/* Recent History Component */}
@@ -615,7 +631,11 @@ export default function Home() {
                   return (
                     <div
                       key={voice.id}
-                      onClick={() => setSelectedVoiceId(voice.id)}
+                      onClick={() => {
+                        setSelectedVoiceId(voice.id);
+                        if (voice.defaultRate !== undefined) setSpeed(voice.defaultRate);
+                        if (voice.defaultPitch !== undefined) setPitch(voice.defaultPitch);
+                      }}
                       className={`group relative rounded-xl border p-3 transition-all cursor-pointer ${
                         isSelected
                           ? 'border-cyan-500 bg-cyan-950/25 shadow-lg shadow-cyan-950/30 ring-1 ring-cyan-500/40'
@@ -706,15 +726,29 @@ export default function Home() {
                 </div>
 
                 {/* Realism Mode Quick Chips */}
-                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+                  <button
+                    onClick={() => {
+                      setSpeed(0.90);
+                      setPitch(-5);
+                      setVolume(1.0);
+                    }}
+                    className={`rounded-lg py-1 px-1.5 text-[10px] font-semibold transition-all border ${
+                      speed === 0.90 && pitch === -5
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    🔥 গভীর কথক (-10% / -5Hz)
+                  </button>
                   <button
                     onClick={() => {
                       setSpeed(1.0);
                       setVolume(1.0);
                       setPitch(0);
                     }}
-                    className={`rounded-lg py-1 px-2 text-[10px] font-semibold transition-all border ${
-                      speed === 1.0 && volume === 1.0
+                    className={`rounded-lg py-1 px-1.5 text-[10px] font-semibold transition-all border ${
+                      speed === 1.0 && pitch === 0
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm'
                         : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
                     }`}
@@ -727,13 +761,13 @@ export default function Home() {
                       setVolume(1.0);
                       setPitch(0);
                     }}
-                    className={`rounded-lg py-1 px-2 text-[10px] font-semibold transition-all border ${
-                      speed === 0.95
+                    className={`rounded-lg py-1 px-1.5 text-[10px] font-semibold transition-all border ${
+                      speed === 0.95 && pitch === 0
                         ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
                         : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    📖 গভীর কথক (Story)
+                    📖 অডিওবুক (Story)
                   </button>
                   <button
                     onClick={() => {
@@ -741,20 +775,20 @@ export default function Home() {
                       setVolume(2.0);
                       setPitch(0);
                     }}
-                    className={`rounded-lg py-1 px-2 text-[10px] font-semibold transition-all border ${
+                    className={`rounded-lg py-1 px-1.5 text-[10px] font-semibold transition-all border ${
                       speed === 1.1 && volume === 2.0
                         ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
                         : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    ⚡ সোনিক ফাস্ট (Sonic 1.1x)
+                    ⚡ সোনিক ফাস্ট (1.1x)
                   </button>
                 </div>
 
                 {/* Speed Slider */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Speed (গতি — স্বাভাবিক মানুষের মতো 1.0x রাখুন):</span>
+                    <span className="text-slate-400">Speed (গতি — কথকের জন্য 0.90x বা -10% সেরা):</span>
                     <span className="font-mono font-bold text-emerald-400">{speed.toFixed(2)}x</span>
                   </div>
                   <input
@@ -767,10 +801,10 @@ export default function Home() {
                     className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-emerald-400"
                   />
                   <div className="flex justify-between text-[10px] text-slate-600">
-                    <span>0.5x (ধীর)</span>
-                    <span className="text-emerald-400 font-semibold">1.0x (বাস্তব মানুষ)</span>
-                    <span>1.1x (Sonic)</span>
-                    <span>2.0x (দ্রুত)</span>
+                    <span>0.5x</span>
+                    <span className="text-amber-400 font-semibold">0.90x (-10% কথক)</span>
+                    <span className="text-emerald-400 font-semibold">1.0x (স্বাভাবিক)</span>
+                    <span>2.0x</span>
                   </div>
                 </div>
 
@@ -800,9 +834,9 @@ export default function Home() {
                 {/* Pitch Slider */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Pitch (পিচ / গলার সুর):</span>
-                    <span className="font-mono font-bold text-teal-400">
-                      {pitch > 0 ? `+${pitch}%` : `${pitch}%`}
+                    <span className="text-slate-400">Pitch (গলার সুর — গভীর কথকের জন্য -5Hz):</span>
+                    <span className="font-mono font-bold text-amber-400">
+                      {pitch > 0 ? `+${pitch}Hz` : `${pitch}Hz`}
                     </span>
                   </div>
                   <input
@@ -812,8 +846,14 @@ export default function Home() {
                     step={1}
                     value={pitch}
                     onChange={(e) => setPitch(parseInt(e.target.value, 10))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-teal-400"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-amber-400"
                   />
+                  <div className="flex justify-between text-[10px] text-slate-600">
+                    <span>-10Hz (খুব গম্ভীর)</span>
+                    <span className="text-amber-400 font-semibold">-5Hz (আবেগঘন কথক)</span>
+                    <span>0Hz (নরমাল)</span>
+                    <span>+10Hz</span>
+                  </div>
                 </div>
               </div>
 

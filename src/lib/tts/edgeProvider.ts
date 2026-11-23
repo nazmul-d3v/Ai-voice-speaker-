@@ -18,10 +18,10 @@ export async function synthesizeEdge(req: TTSRequest): Promise<TTSResult> {
   // Natural human tempo: 1.0x (0% rate adjustment).
   const rateMultiplier = req.rate ?? 1.0;
   const ratePercent = Math.round((rateMultiplier - 1.0) * 100);
-  const rateStr = ratePercent >= 0 ? `+${ratePercent}%` : `${ratePercent}%`;
+  let rateStr = ratePercent >= 0 ? `+${ratePercent}%` : `${ratePercent}%`;
 
   const pitchHz = req.pitch ?? 0;
-  const pitchStr = pitchHz >= 0 ? `+${pitchHz}Hz` : `${pitchHz}Hz`;
+  let pitchStr = pitchHz >= 0 ? `+${pitchHz}Hz` : `${pitchHz}Hz`;
 
   // Volume: calculate volume adjustment percentage without clipping
   const volMultiplier = req.volume ?? 1.0;
@@ -32,7 +32,17 @@ export async function synthesizeEdge(req: TTSRequest): Promise<TTSResult> {
   let targetVoice = req.voiceId;
   const lang = detectLanguage(req.text);
 
-  if (targetVoice === '35b2cfc1-e6fb-4d69-a598-c1780612be4a') {
+  if (targetVoice === 'bn-BD-PradeepStoryNeural') {
+    targetVoice = 'bn-BD-PradeepNeural';
+    // If rate was not explicitly changed away from 1.0, default to emotional slow rate -10%
+    if (req.rate === undefined || req.rate === 1.0) {
+      rateStr = '-10%';
+    }
+    // If pitch was not explicitly changed, default to deep resonant pitch -5Hz
+    if (req.pitch === undefined || req.pitch === 0) {
+      pitchStr = '-5Hz';
+    }
+  } else if (targetVoice === '35b2cfc1-e6fb-4d69-a598-c1780612be4a') {
     // Darío (Steady Operator): if Bengali text, use deep steady Bashkar, if English use Andrew Multilingual
     targetVoice = lang === 'en' ? 'en-US-AndrewMultilingualNeural' : 'bn-IN-BashkarNeural';
   } else if (targetVoice === 'bn-BD-ArjunNeural' || targetVoice === 'bn-IN-SoumyaNeural') {

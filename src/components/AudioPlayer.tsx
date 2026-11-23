@@ -4,11 +4,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import {
   Play,
   Pause,
+  Square,
   RotateCcw,
   Download,
   Volume2,
   VolumeX,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 
 interface AudioPlayerProps {
@@ -19,6 +21,7 @@ interface AudioPlayerProps {
   isMaleVoice?: boolean;
   onDownload?: () => void;
   autoPlay?: boolean;
+  isLoading?: boolean;
 }
 
 export function AudioPlayer({
@@ -28,6 +31,7 @@ export function AudioPlayer({
   detectedLang = 'bn',
   isMaleVoice = false,
   autoPlay = false,
+  isLoading = false,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -86,6 +90,14 @@ export function AudioPlayer({
     }
   };
 
+  const handleStop = () => {
+    if (!audioRef.current) return;
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    setCurrentTime(0);
+    setIsPlaying(false);
+  };
+
   const handleReplay = () => {
     if (!audioRef.current) return;
     audioRef.current.currentTime = 0;
@@ -142,12 +154,30 @@ export function AudioPlayer({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-emerald-500/40 bg-slate-900/70 p-8 text-center text-slate-200 animate-pulse space-y-3 shadow-xl shadow-emerald-950/20">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-emerald-400">
+            গভীর আবেগঘন অডিও তৈরি হচ্ছে (Synthesizing Audio)...
+          </p>
+          <p className="text-xs text-slate-400 mt-1">
+            Microsoft Edge Neural TTS ইঞ্জিন থেকে ৯৬kbps স্টুডিও অডিও লোড হচ্ছে
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!audioUrl) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-700/60 bg-slate-900/40 p-8 text-center text-slate-400">
         <Sparkles className="mx-auto mb-2 h-8 w-8 text-slate-600 animate-pulse" />
         <p className="text-sm font-medium">ভয়েস তৈরি করার পর এখানে অডিও প্লেয়ার ও ডাউনলোড অপশন দেখতে পাবেন।</p>
-        <p className="text-xs text-slate-500 mt-1">Generated audio player will appear here with instant MP3 download.</p>
+        <p className="text-xs text-slate-500 mt-1">Generated audio player with Play, Pause, Stop &amp; MP3 download will appear here.</p>
       </div>
     );
   }
@@ -232,14 +262,23 @@ export function AudioPlayer({
           {/* Play / Pause button */}
           <button
             onClick={togglePlay}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 transition-transform hover:scale-105 active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 transition-transform hover:scale-105 active:scale-95"
             title={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? (
-              <Pause className="h-6 w-6 fill-current" />
+              <Pause className="h-5 w-5 fill-current" />
             ) : (
-              <Play className="h-6 w-6 fill-current translate-x-0.5" />
+              <Play className="h-5 w-5 fill-current translate-x-0.5" />
             )}
+          </button>
+
+          {/* Stop button */}
+          <button
+            onClick={handleStop}
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-rose-400 shadow-sm transition-all hover:bg-rose-500/10 hover:border-rose-500/50 hover:text-rose-300 active:scale-95"
+            title="Stop playback"
+          >
+            <Square className="h-4 w-4 fill-current" />
           </button>
 
           {/* Replay button */}
