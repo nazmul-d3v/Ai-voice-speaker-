@@ -447,7 +447,7 @@ export default function Home() {
                     className="flex items-center gap-1 rounded-lg bg-amber-500/15 border border-amber-500/40 px-2 py-0.5 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors"
                   >
                     <BookOpen className="h-3 w-3 text-amber-400" />
-                    <span>🔥 প্রদীপ (গভীর কথক -10% / -5Hz)</span>
+                    <span>🔥 Deep Emotional Male (-10% / -5Hz)</span>
                   </button>
                   <button
                     onClick={() => {

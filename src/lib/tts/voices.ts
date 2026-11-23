@@ -6,17 +6,17 @@ export const SUPPORTED_VOICES: VoiceOption[] = [
   // ==========================================
   {
     id: 'bn-BD-PradeepStoryNeural',
-    name: 'প্রদীপ (গভীর আবেগঘন কথক)',
-    nativeName: 'প্রদীপ — গভীর ও আবেগঘন কথক (Deep Storyteller)',
+    name: 'Deep Emotional Male (Bangla)',
+    nativeName: 'Deep Emotional Male (Bangla) — প্রদীপ',
     gender: 'male',
     locale: 'bn-BD',
-    languageLabel: 'বাংলা (আবেগঘন অডিওবুক ও গল্প)',
-    badge: '🔥 গভীর আবেগঘন কথক (-10% / -5Hz)',
+    languageLabel: 'বাংলা (Deep Emotional Storytelling)',
+    badge: '🔥 Deep Emotional (-10% / -5Hz)',
     category: 'storyteller',
-    defaultRate: 0.90,
-    defaultPitch: -5,
+    defaultRate: 0.90, // rate="-10%"
+    defaultPitch: -5,  // pitch="-5Hz"
     demoAudioUrl: '/audio/pradeep-storyteller-demo.mp3',
-    description: 'শান্ত, গম্ভীর, উষ্ণ ও গভীর আবেগঘন বাংলাদেশি পুরুষ কণ্ঠ (টউনিং: স্পিড -১০%, পিচ -৫Hz — অডিওবুক, ড্রামা ও সাসপেন্সের জন্য পারফেক্ট)',
+    description: 'Deep, warm, calm, emotional male storytelling voice using Microsoft Edge TTS (bn-BD-PradeepNeural) tuned to rate="-10%" & pitch="-5Hz" for a slower, deeper, emotional audiobook narration feel.',
     isRecommended: true,
     sampleText: 'ঝড় থেমে গেছে। চারপাশ নিস্তব্ধ। কিন্তু বুকের ভেতর জমে থাকা না-বলা কথাগুলো যেন আজও এক শান্ত নদীর মতো বয়ে চলেছে। মানুষের আসল শক্তি তার নীরব ধৈর্যে।',
   },
