@@ -31,6 +31,7 @@ import {
   Zap,
   Cpu,
   Code2,
+  Search,
 } from 'lucide-react';
 
 // Samples
@@ -45,6 +46,8 @@ const SAMPLE_DARIO = `Welcome to the Cartesia Sonic playground. I am Darío, a s
 const SAMPLE_SARAH = `Hello there! I am Sarah, a friendly conversational voice from the Cartesia Sonic model library, ready to assist you.`;
 
 const SAMPLE_BARBERSHOP = `Gather around. Every great story begins with a single step into the unknown. Let me tell you about what happened that evening.`;
+
+const SAMPLE_SKYLAR = `Hi there! I am Skylar, your friendly and approachable AI guide. How can I assist you with your project today?`;
 
 const SAMPLE_BANGLA = `আজকের দিনে কৃত্রিম বুদ্ধিমত্তা আমাদের ভাষাকে নতুন মাত্রা দিয়েছে। আপনি চাইলে সহজেই যেকোনো বাংলা লেখা থেকে স্টুডিও মানের স্পষ্ট ও প্রাকৃতিক ভয়েস তৈরি করতে পারেন। ২০২৬ সালের এই নতুন প্রযুক্তি আপনার কনটেন্টকে আরও আকর্ষণীয় করবে।`;
 
@@ -67,6 +70,7 @@ export default function Home() {
   // Filters: Gender ('all' | 'male' | 'female') & Category/Lang ('all' | 'bn' | 'en' | 'cartesia')
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'bn' | 'en' | 'cartesia'>('all');
+  const [voiceSearch, setVoiceSearch] = useState('');
   
   // UI states
   const [isLoading, setIsLoading] = useState(false);
@@ -113,7 +117,7 @@ export default function Home() {
 
   const selectedVoice = getVoiceById(selectedVoiceId);
 
-  // Filter voices based on Gender & Language/Cartesia tabs
+  // Filter voices based on Gender, Category/Cartesia, and Search query
   const filteredVoices = SUPPORTED_VOICES.filter((voice) => {
     if (genderFilter !== 'all' && voice.gender !== genderFilter) return false;
     if (languageFilter === 'bn' && !voice.locale.startsWith('bn-')) return false;
@@ -122,9 +126,22 @@ export default function Home() {
       languageFilter === 'cartesia' &&
       !voice.languageLabel?.includes('Cartesia') &&
       !voice.badge?.includes('Sonic') &&
-      !voice.badge?.includes('Cartesia')
+      !voice.badge?.includes('Cartesia') &&
+      !voice.badge?.includes('British') &&
+      !voice.badge?.includes('Emotive')
     ) {
       return false;
+    }
+    if (voiceSearch.trim()) {
+      const q = voiceSearch.toLowerCase().trim();
+      const matchName = voice.name.toLowerCase().includes(q);
+      const matchNative = voice.nativeName.toLowerCase().includes(q);
+      const matchDesc = voice.description.toLowerCase().includes(q);
+      const matchBadge = voice.badge?.toLowerCase().includes(q);
+      const matchId = voice.id.toLowerCase().includes(q);
+      if (!matchName && !matchNative && !matchDesc && !matchBadge && !matchId) {
+        return false;
+      }
     }
     return true;
   });
@@ -523,6 +540,19 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => {
+                      setText(SAMPLE_SKYLAR);
+                      setSelectedVoiceId('db6b0ed5-d5d3-463d-ae85-518a07d3c2b4');
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-teal-500/15 border border-teal-500/30 px-2 py-0.5 text-[11px] text-teal-300 hover:bg-teal-500/25 transition-colors"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    <span>⚡ Skylar (Guide)</span>
+                  </button>
+                  <button
+                    onClick={() => {
                       setText(SAMPLE_SARAH);
                       setSelectedVoiceId('694f9389-aac1-45b6-b726-9d9369183238');
                       setSpeed(1.0);
@@ -588,15 +618,15 @@ export default function Home() {
             <div className="rounded-2xl border border-slate-800/90 bg-[#0e111a] p-5 shadow-2xl backdrop-blur-sm space-y-4">
               
               {/* Voice & Filters Header */}
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
                 <div className="flex items-center gap-2">
                   <Radio className="h-4 w-4 text-cyan-400" />
                   <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                    Voice Selection
+                    Voice Library ({filteredVoices.length})
                   </h3>
                 </div>
 
-                {/* Language tab filter */}
+                {/* Category tab filter */}
                 <div className="flex items-center rounded-lg bg-slate-950 p-0.5 text-xs">
                   <button
                     onClick={() => setLanguageFilter('all')}
@@ -606,7 +636,17 @@ export default function Home() {
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    All
+                    All ({SUPPORTED_VOICES.length})
+                  </button>
+                  <button
+                    onClick={() => setLanguageFilter('cartesia')}
+                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                      languageFilter === 'cartesia'
+                        ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    ⚡ Cartesia (21)
                   </button>
                   <button
                     onClick={() => setLanguageFilter('bn')}
@@ -616,7 +656,7 @@ export default function Home() {
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    🇧🇩 বাংলা
+                    🇧🇩 বাংলা (7)
                   </button>
                   <button
                     onClick={() => setLanguageFilter('en')}
@@ -628,17 +668,27 @@ export default function Home() {
                   >
                     🇺🇸 English
                   </button>
-                  <button
-                    onClick={() => setLanguageFilter('cartesia')}
-                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
-                      languageFilter === 'cartesia'
-                        ? 'bg-gradient-to-r from-cyan-500/20 to-teal-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    ⚡ Cartesia
-                  </button>
                 </div>
+              </div>
+
+              {/* Search voices input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+                <input
+                  type="text"
+                  value={voiceSearch}
+                  onChange={(e) => setVoiceSearch(e.target.value)}
+                  placeholder="ভয়েস খুঁজুন (Search 30 voices: Skylar, Dario, Sarah, Archie, Daniel...)"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950/80 pl-9 pr-8 py-2 text-xs text-slate-100 placeholder:text-slate-600 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50"
+                />
+                {voiceSearch && (
+                  <button
+                    onClick={() => setVoiceSearch('')}
+                    className="absolute right-2.5 top-2.5 text-xs text-slate-500 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               {/* Gender Filter Chips */}
@@ -678,8 +728,14 @@ export default function Home() {
               </div>
 
               {/* Voice Cards List */}
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                {filteredVoices.map((voice) => {
+              <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                {filteredVoices.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-slate-500">
+                    <p>কোনো ভয়েস পাওয়া যায়নি।</p>
+                    <p className="mt-1 text-[11px] text-slate-600">No voices match &ldquo;{voiceSearch}&rdquo;</p>
+                  </div>
+                ) : (
+                  filteredVoices.map((voice) => {
                   const isSelected = voice.id === selectedVoiceId;
                   const isPreviewPlaying = previewVoiceId === voice.id;
                   const isPreviewLoading = previewLoadingId === voice.id;
@@ -757,7 +813,7 @@ export default function Home() {
                       </div>
                     </div>
                   );
-                })}
+                }))}
               </div>
 
               {/* Realism Tuning Controls: Speed, Volume & Pitch */}
