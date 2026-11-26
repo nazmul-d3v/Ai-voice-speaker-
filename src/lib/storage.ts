@@ -19,11 +19,34 @@ export function loadHistory(): HistoryItem[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (item) => item && typeof item === 'object' && typeof item.id === 'string' && typeof item.text === 'string'
-    );
+    
+    return parsed
+      .filter((item): item is HistoryItem => {
+        return (
+          item !== null &&
+          typeof item === 'object' &&
+          typeof item.id === 'string' &&
+          typeof item.text === 'string' &&
+          typeof item.audioBase64 === 'string'
+        );
+      })
+      .map((item) => ({
+        id: item.id,
+        text: item.text,
+        voiceId: typeof item.voiceId === 'string' ? item.voiceId : 'bn-BD-PradeepStoryNeural',
+        voiceName: typeof item.voiceName === 'string' ? item.voiceName : 'বাস্তব কণ্ঠ',
+        language: typeof item.language === 'string' ? item.language : 'bn',
+        audioBase64: item.audioBase64,
+        createdAt: typeof item.createdAt === 'number' && !isNaN(item.createdAt) ? item.createdAt : Date.now(),
+      }));
   } catch (e) {
     console.error('Failed to load history from localStorage', e);
+    // If corrupted, clear it safely so it doesn't break future loads
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
     return [];
   }
 }

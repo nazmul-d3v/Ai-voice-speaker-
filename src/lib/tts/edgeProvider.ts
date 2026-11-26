@@ -43,8 +43,23 @@ export async function synthesizeEdge(req: TTSRequest): Promise<TTSResult> {
       pitchStr = '-5Hz';
     }
   } else if (targetVoice === '35b2cfc1-e6fb-4d69-a598-c1780612be4a') {
-    // Darío (Steady Operator): if Bengali text, use deep steady Bashkar, if English use Andrew Multilingual
+    // Darío (Steady Operator): if English use studio Andrew Multilingual, if Bengali use deep steady Bashkar
     targetVoice = lang === 'en' ? 'en-US-AndrewMultilingualNeural' : 'bn-IN-BashkarNeural';
+  } else if (targetVoice === '694f9389-aac1-45b6-b726-9d9369183238') {
+    // Sarah (Helpful Conversationalist): natural human female
+    targetVoice = lang === 'en' ? 'en-US-AvaMultilingualNeural' : 'bn-BD-NabanitaNeural';
+  } else if (targetVoice === 'a0e99841-438c-4a64-b679-ae501e7d6091') {
+    // Barbershop Man: rich resonant narrator
+    targetVoice = lang === 'en' ? 'en-US-AndrewMultilingualNeural' : 'bn-IN-BashkarNeural';
+  } else if (targetVoice === 'd8092b2a-281b-4e15-bfc4-299cec5eb1da') {
+    // Daniel (Modern Assistant): clear crisp male assistant
+    targetVoice = lang === 'en' ? 'en-US-GuyNeural' : 'bn-BD-PradeepNeural';
+  } else if (targetVoice === '79a125e8-cd45-4c13-8a67-188112f4dd22') {
+    // Brooke (Expressive Host): dynamic female announcer
+    targetVoice = lang === 'en' ? 'en-US-EmmaMultilingualNeural' : 'bn-IN-TanishaaNeural';
+  } else if (targetVoice === '820a3788-2b37-4d21-847a-b65d8a68c99a') {
+    // Sofia (Mindful Meditation): soft gentle female
+    targetVoice = lang === 'en' ? 'en-US-JennyNeural' : 'bn-BD-NabanitaNeural';
   } else if (targetVoice === 'bn-BD-ArjunNeural' || targetVoice === 'bn-IN-SoumyaNeural') {
     targetVoice = 'bn-IN-BashkarNeural';
   } else if (targetVoice === 'bn-BD-AnanyaNeural') {

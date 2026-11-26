@@ -27,14 +27,38 @@ export function HistoryList({
     );
   }
 
+  const formatHistoryDate = (timestamp: number) => {
+    try {
+      if (!timestamp || isNaN(timestamp)) return 'এখনই';
+      const d = new Date(timestamp);
+      if (isNaN(d.getTime())) return 'এখনই';
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return 'এখনই';
+    }
+  };
+
   const downloadHistoryClip = (item: HistoryItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    const link = document.createElement('a');
-    link.href = item.audioBase64;
-    link.download = `voice-${item.language}-${new Date(item.createdAt).toISOString().slice(0, 10)}.mp3`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const link = document.createElement('a');
+      link.href = item.audioBase64;
+      let datePart = 'clip';
+      try {
+        const d = new Date(item.createdAt);
+        if (!isNaN(d.getTime())) {
+          datePart = d.toISOString().slice(0, 10);
+        }
+      } catch {
+        datePart = 'clip';
+      }
+      link.download = `voice-${item.language || 'bn'}-${datePart}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Download history error:', err);
+    }
   };
 
   return (
@@ -70,7 +94,7 @@ export function HistoryList({
                   🎙️ {item.voiceName}
                 </span>
                 <span>•</span>
-                <span>{new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>{formatHistoryDate(item.createdAt)}</span>
               </div>
             </div>
 

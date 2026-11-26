@@ -42,6 +42,10 @@ const SAMPLE_FEMALE = `নমস্কার। আমি নবনিতা। 
 
 const SAMPLE_DARIO = `Welcome to the Cartesia Sonic playground. I am Darío, a steady and articulate voice operator designed for ultra-low latency, studio-quality speech generation.`;
 
+const SAMPLE_SARAH = `Hello there! I am Sarah, a friendly conversational voice from the Cartesia Sonic model library, ready to assist you.`;
+
+const SAMPLE_BARBERSHOP = `Gather around. Every great story begins with a single step into the unknown. Let me tell you about what happened that evening.`;
+
 const SAMPLE_BANGLA = `আজকের দিনে কৃত্রিম বুদ্ধিমত্তা আমাদের ভাষাকে নতুন মাত্রা দিয়েছে। আপনি চাইলে সহজেই যেকোনো বাংলা লেখা থেকে স্টুডিও মানের স্পষ্ট ও প্রাকৃতিক ভয়েস তৈরি করতে পারেন। ২০২৬ সালের এই নতুন প্রযুক্তি আপনার কনটেন্টকে আরও আকর্ষণীয় করবে।`;
 
 const SAMPLE_ENGLISH = `Artificial intelligence is transforming how we communicate across borders and languages. With cutting-edge neural voice synthesis, you can generate crystal-clear, studio-quality speech for your videos, podcasts, and digital content effortlessly.`;
@@ -60,9 +64,9 @@ export default function Home() {
   
   const [detectedLang, setDetectedLang] = useState<DetectedLanguage>('bn');
   
-  // Filters: Gender ('all' | 'male' | 'female') & Language ('all' | 'bn' | 'en')
+  // Filters: Gender ('all' | 'male' | 'female') & Category/Lang ('all' | 'bn' | 'en' | 'cartesia')
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
-  const [languageFilter, setLanguageFilter] = useState<'all' | 'bn' | 'en'>('all');
+  const [languageFilter, setLanguageFilter] = useState<'all' | 'bn' | 'en' | 'cartesia'>('all');
   
   // UI states
   const [isLoading, setIsLoading] = useState(false);
@@ -109,11 +113,19 @@ export default function Home() {
 
   const selectedVoice = getVoiceById(selectedVoiceId);
 
-  // Filter voices based on Gender & Language tabs
+  // Filter voices based on Gender & Language/Cartesia tabs
   const filteredVoices = SUPPORTED_VOICES.filter((voice) => {
     if (genderFilter !== 'all' && voice.gender !== genderFilter) return false;
     if (languageFilter === 'bn' && !voice.locale.startsWith('bn-')) return false;
-    if (languageFilter === 'en' && !voice.locale.startsWith('en-') && voice.id !== '35b2cfc1-e6fb-4d69-a598-c1780612be4a') return false;
+    if (languageFilter === 'en' && !voice.locale.startsWith('en-')) return false;
+    if (
+      languageFilter === 'cartesia' &&
+      !voice.languageLabel?.includes('Cartesia') &&
+      !voice.badge?.includes('Sonic') &&
+      !voice.badge?.includes('Cartesia')
+    ) {
+      return false;
+    }
     return true;
   });
 
@@ -234,18 +246,26 @@ export default function Home() {
 
   const handlePaste = async () => {
     try {
-      const clipText = await navigator.clipboard.readText();
-      if (clipText) setText(clipText);
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.readText) {
+        const clipText = await navigator.clipboard.readText();
+        if (clipText) setText(clipText);
+      }
     } catch (err) {
       console.warn('Could not read clipboard', err);
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!text) return;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (err) {
+      console.warn('Could not write to clipboard', err);
+    }
   };
 
   const handleClear = () => {
@@ -492,14 +512,40 @@ export default function Home() {
                     onClick={() => {
                       setText(SAMPLE_DARIO);
                       setSelectedVoiceId('35b2cfc1-e6fb-4d69-a598-c1780612be4a');
-                      setSpeed(1.1);
-                      setVolume(2.0);
+                      setSpeed(0.9);
+                      setVolume(1.8);
                       setPitch(0);
                     }}
-                    className="flex items-center gap-1 rounded-lg bg-slate-800/80 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    className="flex items-center gap-1 rounded-lg bg-cyan-500/15 border border-cyan-500/40 px-2 py-0.5 text-[11px] font-semibold text-cyan-300 hover:bg-cyan-500/25 transition-colors"
                   >
-                    <Zap className="h-3 w-3" />
-                    <span>Darío (Sonic 3.5)</span>
+                    <Zap className="h-3 w-3 text-cyan-400" />
+                    <span>⚡ Darío (Sonic 0.9x / 1.8 Vol)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setText(SAMPLE_SARAH);
+                      setSelectedVoiceId('694f9389-aac1-45b6-b726-9d9369183238');
+                      setSpeed(1.0);
+                      setVolume(1.0);
+                      setPitch(0);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-pink-500/15 border border-pink-500/30 px-2 py-0.5 text-[11px] text-pink-300 hover:bg-pink-500/25 transition-colors"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    <span>⚡ Sarah (Conversational)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setText(SAMPLE_BARBERSHOP);
+                      setSelectedVoiceId('a0e99841-438c-4a64-b679-ae501e7d6091');
+                      setSpeed(0.95);
+                      setVolume(1.0);
+                      setPitch(-2);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] text-amber-300 hover:bg-amber-500/25 transition-colors"
+                  >
+                    <BookOpen className="h-3 w-3" />
+                    <span>⚡ Barbershop (Narrator)</span>
                   </button>
                   <button
                     onClick={() => {
@@ -582,6 +628,16 @@ export default function Home() {
                   >
                     🇺🇸 English
                   </button>
+                  <button
+                    onClick={() => setLanguageFilter('cartesia')}
+                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                      languageFilter === 'cartesia'
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-teal-500/20 text-cyan-300 font-bold border border-cyan-500/40'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    ⚡ Cartesia
+                  </button>
                 </div>
               </div>
 
@@ -650,7 +706,7 @@ export default function Home() {
                             </span>
                             {voice.badge && (
                               <span className={`rounded-full px-2 py-0.2 text-[9px] font-bold border ${
-                                voice.id.includes('35b2cfc1')
+                                voice.languageLabel.includes('Cartesia') || voice.badge.includes('Cartesia') || voice.id.includes('35b2cfc1')
                                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
                                   : voice.gender === 'male'
                                   ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
@@ -771,17 +827,18 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => {
-                      setSpeed(1.1);
-                      setVolume(2.0);
+                      setSpeed(0.9);
+                      setVolume(1.8);
                       setPitch(0);
+                      setSelectedVoiceId('35b2cfc1-e6fb-4d69-a598-c1780612be4a');
                     }}
                     className={`rounded-lg py-1 px-1.5 text-[10px] font-semibold transition-all border ${
-                      speed === 1.1 && volume === 2.0
-                        ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
+                      speed === 0.9 && volume === 1.8
+                        ? 'bg-cyan-500/25 text-cyan-300 border-cyan-500/60 shadow-sm'
                         : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    ⚡ সোনিক ফাস্ট (1.1x)
+                    ⚡ Cartesia Play (0.9x / 1.8 Vol)
                   </button>
                 </div>
 
@@ -895,7 +952,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-[#07090e] py-6 text-center text-xs text-slate-500 font-bengali">
         <p>
-          Ai-Spicker Sonic Studio &copy; {new Date().getFullYear()} — Inspired by Cartesia Sonic 3.5 &amp; Azure Neural Speech. Ready for Vercel deployment.
+          Ai-Spicker Sonic Studio &copy; 2026 — Inspired by Cartesia Sonic 3.5 &amp; Azure Neural Speech. Ready for Vercel deployment.
         </p>
       </footer>
     </div>

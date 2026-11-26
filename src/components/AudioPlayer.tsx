@@ -55,7 +55,7 @@ export function AudioPlayer({
     }
     setCurrentTime(0);
     setIsPlaying(false);
-  }, [audioUrl, autoPlay, playbackRate]);
+  }, [audioUrl, autoPlay]);
 
   const togglePlay = () => {
     if (!audioRef.current || !audioUrl) return;
@@ -72,13 +72,15 @@ export function AudioPlayer({
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+      const cur = audioRef.current.currentTime;
+      setCurrentTime(isFinite(cur) && !isNaN(cur) ? cur : 0);
     }
   };
 
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
-      setDuration(audioRef.current.duration || 0);
+      const d = audioRef.current.duration;
+      setDuration(isFinite(d) && !isNaN(d) ? d : 0);
     }
   };
 
@@ -137,7 +139,12 @@ export function AudioPlayer({
     if (!audioUrl) return;
     const isWav = audioUrl.includes('.wav');
     const ext = isWav ? 'wav' : 'mp3';
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    let dateStr = 'audio';
+    try {
+      dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    } catch {
+      dateStr = 'audio';
+    }
     const filename = `voice-${detectedLang}-${dateStr}-${Date.now().toString().slice(-4)}.${ext}`;
     const link = document.createElement('a');
     link.href = audioUrl;
@@ -148,7 +155,7 @@ export function AudioPlayer({
   };
 
   const formatTime = (seconds: number) => {
-    if (isNaN(seconds) || seconds < 0) return '0:00';
+    if (isNaN(seconds) || seconds < 0 || !isFinite(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -245,8 +252,8 @@ export function AudioPlayer({
         <input
           type="range"
           min={0}
-          max={duration || 100}
-          value={currentTime}
+          max={isFinite(duration) && duration > 0 ? duration : 100}
+          value={isFinite(currentTime) ? currentTime : 0}
           onChange={handleSeek}
           className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-800 accent-emerald-400 transition-all focus:outline-none"
         />
